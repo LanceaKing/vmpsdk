@@ -83,8 +83,12 @@ try {
     $lastState = ''
     while (!$process.WaitForExit(500)) {
         if ($timer.Elapsed.TotalMinutes -ge 10) { throw 'Delphi installation timed out after 10 minutes' }
-        # Inno Setup launches a .tmp child with the same executable base name.
-        $owners = @(Get-Process -Name $stem -ErrorAction SilentlyContinue | ForEach-Object Id)
+        # Inno Setup runs the wizard in a renamed temporary child process.
+        $processes = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId)
+        $owners = @($process.Id)
+        for ($index = 0; $index -lt $owners.Count; $index++) {
+            $owners += @($processes | Where-Object { $_.ParentProcessId -eq $owners[$index] -and $_.ProcessId -notin $owners } | ForEach-Object ProcessId)
+        }
         foreach ($window in [DelphiSetupUI]::Windows([IntPtr]::Zero)) {
             if ($window.ProcessId -notin $owners) { continue }
             $controls = @([DelphiSetupUI]::Windows($window.Handle))
