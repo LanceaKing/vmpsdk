@@ -154,6 +154,9 @@ jobs:
           $process = Start-Process $installer -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', '/DIR=C:\lazarus' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Lazarus installer exited with $($process.ExitCode)" }
       - run: python ci/prepare.py
+      - name: Diagnose VB6 compiler startup
+        if: matrix.kind == 'vb6'
+        run: ./ci/probe-vb6.ps1
       - run: ./ci/build-windows.ps1 -Kind '${{ matrix.kind }}' -Arch '${{ matrix.arch }}'
       - name: Verify source and SDK bytes after building
         if: always()
