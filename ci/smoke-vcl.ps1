@@ -1,3 +1,4 @@
+param([ValidateSet('bcb', 'delphi')][string]$Kind = 'bcb')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 Add-Type @'
@@ -5,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-public static class BcbWindows {
+public static class VclWindows {
     public class Window {
         public IntPtr Handle;
         public string Class, Text;
@@ -42,9 +43,10 @@ public static class BcbWindows {
     }
 }
 '@
+$markerTitle = if ($Kind -eq 'bcb') { 'VMProtect test [Borland C++ Builder]' } else { 'VMProtect test [Delphi]' }
 foreach ($example in @(
-    @{Folder='markers-bcb-x86'; Exe='Project1.exe'; Title='VMProtect test [Borland C++ Builder]'},
-    @{Folder='licensing-bcb-x86'; Exe='TestApp.exe'; Title='License Test App'}
+    @{Folder="markers-$Kind-x86"; Exe='Project1.exe'; Title=$markerTitle},
+    @{Folder="licensing-$Kind-x86"; Exe='TestApp.exe'; Title='License Test App'}
 )) {
     $folder = "$root\.build\artifacts\$($example.Folder)"
     $exe = Join-Path $folder $example.Exe
@@ -56,17 +58,17 @@ foreach ($example in @(
             if ($process.WaitForExit(200)) {
                 throw "$($example.Exe) exited before showing its form: $($process.ExitCode)"
             }
-            $forms = @([BcbWindows]::Snapshot($process.Id, $false) | Where-Object {
+            $forms = @([VclWindows]::Snapshot($process.Id, $false) | Where-Object {
                 $_.Visible -and $_.Class -ceq 'TForm1' -and $_.Text -ceq $example.Title
             })
             if ($forms.Count -eq 1) { break }
             if ($timer.Elapsed.TotalSeconds -ge 15) {
-                [BcbWindows]::Snapshot($process.Id, $true) | ForEach-Object { Write-Host $_ }
+                [VclWindows]::Snapshot($process.Id, $true) | ForEach-Object { Write-Host $_ }
                 throw "$($example.Exe) did not show its form; PID=$($process.Id)"
             }
         }
         Write-Host "PASS: $($example.Exe): PID=$($process.Id), $($forms[0])"
-        if (![BcbWindows]::PostMessage($forms[0].Handle, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) -or !$process.WaitForExit(5000)) {
+        if (![VclWindows]::PostMessage($forms[0].Handle, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) -or !$process.WaitForExit(5000)) {
             throw "$($example.Exe) did not close its form normally"
         }
         if ($process.ExitCode -ne 0) { throw "$($example.Exe) exited with $($process.ExitCode)" }

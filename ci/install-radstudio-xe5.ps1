@@ -1,10 +1,10 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$sdk = Join-Path $root '.build/bcb'
-$downloads = Join-Path $root '.build/downloads/bcb'
-$unpack = Join-Path $root '.build/bcb-unpack'
-if (Test-Path $sdk) { throw "Refusing to overwrite existing C++Builder toolchain: $sdk" }
-$manifest = Get-Content "$PSScriptRoot/bcb-toolchain.json" -Raw | ConvertFrom-Json -AsHashtable
+$sdk = Join-Path $root '.build/radstudio-xe5'
+$downloads = Join-Path $root '.build/downloads/radstudio-xe5'
+$unpack = Join-Path $root '.build/radstudio-xe5-unpack'
+if (Test-Path $sdk) { throw "Refusing to overwrite existing RAD Studio XE5 toolchain: $sdk" }
+$manifest = Get-Content "$PSScriptRoot/radstudio-xe5-toolchain.json" -Raw | ConvertFrom-Json -AsHashtable
 New-Item -ItemType Directory -Force $downloads, $sdk | Out-Null
 # Original payloads from the official XE5 Update 2 offline installation (4.82 GiB).
 # The directory mapping and archive passwords come from its Install/Setup.exe.
@@ -14,13 +14,13 @@ foreach ($package in $manifest.packages) {
     if (!(Test-Path $archive)) {
         & curl.exe --fail --location --retry 3 --connect-timeout 30 --max-time 300 --max-filesize $package.size `
             --output $archive "$($manifest.url)/$($package.name).7zip"
-        if ($LASTEXITCODE -ne 0) { throw "C++Builder download failed: $($package.name)" }
+        if ($LASTEXITCODE -ne 0) { throw "RAD Studio XE5 download failed: $($package.name)" }
     }
     if ((Get-Item $archive).Length -ne $package.size -or (Get-FileHash $archive -Algorithm SHA256).Hash -ne $package.sha256) {
-        throw "C++Builder package size/SHA-256 mismatch: $($package.name)"
+        throw "RAD Studio XE5 package size/SHA-256 mismatch: $($package.name)"
     }
     & 7z x -y -bso0 "-p$($package.password)" "-o$unpack" $archive
-    if ($LASTEXITCODE -ne 0) { throw "C++Builder extraction failed: $($package.name)" }
+    if ($LASTEXITCODE -ne 0) { throw "RAD Studio XE5 extraction failed: $($package.name)" }
     foreach ($entry in $package.directories.GetEnumerator()) {
         $source = Join-Path $unpack "$($package.name)/$($entry.Key)"
         $dest = Join-Path $sdk $entry.Value
@@ -29,8 +29,9 @@ foreach ($package in $manifest.packages) {
         Copy-Item "$source/*" $dest -Recurse -Force
     }
 }
-foreach ($file in @('bin/bcc32.exe', 'bin/ilink32.exe', 'bin/rlink32.dll', 'bin/implib.exe', 'bin/brcc32.exe',
-    'bin/default_app.manifest', 'include/windows/vcl/vcl.h', 'lib/win32/release/vcl.lib', 'lib/win32/release/rtl.lib')) {
-    if (!(Test-Path "$sdk/$file")) { throw "Incomplete C++Builder toolchain: $file" }
+foreach ($file in @('bin/bcc32.exe', 'bin/dcc32.exe', 'bin/ilink32.exe', 'bin/rlink32.dll', 'bin/implib.exe', 'bin/brcc32.exe',
+    'bin/default_app.manifest', 'include/windows/vcl/vcl.h', 'lib/win32/release/vcl.lib', 'lib/win32/release/rtl.lib',
+    'lib/win32/release/System.dcu', 'lib/win32/release/Vcl.Forms.dcu')) {
+    if (!(Test-Path "$sdk/$file")) { throw "Incomplete RAD Studio XE5 toolchain: $file" }
 }
-Write-Host "C++Builder XE5 Update 2 toolchain: $sdk"
+Write-Host "RAD Studio XE5 Update 2 toolchain: $sdk"

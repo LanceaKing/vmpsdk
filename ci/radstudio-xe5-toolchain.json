@@ -42,6 +42,15 @@
       "sha256": "c0cc3b695396a096300187daff2d4d28117d3fd6b153142b7bad33899a89635c"
     },
     {
+      "name": "corewin32xyz",
+      "size": 35659953,
+      "password": "naq9aevaz1",
+      "directories": {
+        "8D7A5208": "lib/win32/debug"
+      },
+      "sha256": "73c0f8fcd533b0e218c9e8a86499964b0413b49cedfd3b4693c69ea351e29ea1"
+    },
+    {
       "name": "vclwin32runtimes",
       "size": 1061039,
       "password": "ickousIA5E",
@@ -78,6 +87,24 @@
         "F311ED39": "bin"
       },
       "sha256": "b9cb0b679d616a1f9db73981eacaa3adfec214cf8f98313ac7113f7f31f6a991"
+    },
+    {
+      "name": "delphiwin32",
+      "size": 337503,
+      "password": "ackUczia9ua",
+      "directories": {
+        "8C5B57FF": "bin"
+      },
+      "sha256": "4af21e167c2815ed63557b91faa59a4205690d99d72dc36b3742ca0d1e974905"
+    },
+    {
+      "name": "transmogrifierd",
+      "size": 590143,
+      "password": "cha5ozio7au",
+      "directories": {
+        "E8D2221": "bin"
+      },
+      "sha256": "c02007cc3891a751e1653a8d58407521dde608e5816fb653b636c8f15d189acd"
     }
   ]
 }

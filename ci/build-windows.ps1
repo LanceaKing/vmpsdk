@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports only x86' }
 if ($Kind -eq 'vb6' -and $Arch -ne 'x86') { throw 'The VB6 examples support only x86' }
 if ($Kind -eq 'bcb' -and $Arch -ne 'x86') { throw 'The BCB examples support only x86' }
-if ($Kind -eq 'delphi' -and $Arch -ne 'x86') { throw 'The Delphi 7 examples support only x86' }
+if ($Kind -eq 'delphi' -and $Arch -ne 'x86') { throw 'The Delphi examples support only x86' }
 $root = Split-Path $PSScriptRoot -Parent
 $work = Join-Path $root '.build/work'
 $out = Join-Path $root '.build/artifacts'
@@ -124,8 +124,8 @@ if ($Kind -eq 'native') {
         }
     }
 } elseif ($Kind -eq 'bcb') {
-    $sdk = "$root\.build\bcb"
-    if (!(Test-Path "$sdk\bin\bcc32.exe")) { throw 'C++Builder missing; run ci/install-bcb.ps1 first' }
+    $sdk = "$root\.build\radstudio-xe5"
+    if (!(Test-Path "$sdk\bin\bcc32.exe")) { throw 'RAD Studio XE5 toolchain missing; run ci/install-radstudio-xe5.ps1 first' }
     $env:PATH = "$sdk\bin;$env:PATH"
     foreach ($example in @(
         @{Folder='Code Markers'; Name='Project1'; Artifact='markers-bcb-x86'; Startup='c0w32.obj'; Defines=@()},
@@ -165,9 +165,9 @@ if ($Kind -eq 'native') {
         } finally { Pop-Location }
     }
 } elseif ($Kind -eq 'delphi') {
-    $sdk = "$root\.build\delphi"
+    $sdk = "$root\.build\radstudio-xe5"
     $compiler = "$sdk\Bin\dcc32.exe"
-    if (!(Test-Path $compiler)) { throw 'Delphi compiler missing; run ci/install-delphi.ps1 first' }
+    if (!(Test-Path $compiler)) { throw 'Delphi compiler missing; run ci/install-radstudio-xe5.ps1 first' }
     foreach ($example in @(
         @{Folder='Code Markers'; Name='Project1'; Artifact='markers-delphi-x86'; Runtime='Lib\Windows\VMProtectSDK32.dll'},
         @{Folder='Licensing'; Name='TestApp'; Artifact='licensing-delphi-x86'; Runtime='Lib\Windows\VMProtectSDK32.dll'},
@@ -187,7 +187,11 @@ if ($Kind -eq 'native') {
             }
             # Invoke the original DPR without upgrading old DOF/DPROJ files.
             # -E also directs the new map away from the imported TestApp.map.
-            Run $compiler @('-B', '-Q', '-GD', "-E$dest", "-N$obj", "-U$sdk\Lib", "-I$sdk\Lib", "-R$sdk\Lib", "$($example.Name).dpr")
+            # XE5 uses scoped unit names; resolve the original Forms, Windows,
+            # SysUtils, etc. without rewriting the imported Pascal sources.
+            $lib = "$sdk\lib\win32\release"
+            Run $compiler @('-B', '-Q', '-GD', '-NSSystem;Winapi;Vcl', "-E$dest", "-N0$obj",
+                "-U$lib", "-I$lib", "-R$lib", "$($example.Name).dpr")
             foreach ($output in @($exe, "$dest\$($example.Name).map")) {
                 if (!(Test-Path $output) -or (Get-Item $output).Length -eq 0) {
                     throw "Missing Delphi build output: $output"

@@ -145,24 +145,15 @@ jobs:
       - name: Prepare VB6 compiler
         if: matrix.kind == 'vb6'
         run: ./ci/install-vb6.ps1
-      - name: Cache Delphi installer download
-        if: matrix.kind == 'delphi'
+      - name: Cache RAD Studio XE5 toolchain downloads
+        if: matrix.kind == 'bcb' || matrix.kind == 'delphi'
         uses: actions/cache@v6
         with:
-          path: .build/downloads/delphi/*.rar
-          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-delphi7-${{ hashFiles('ci/install-delphi.ps1') }}
-      - name: Cache C++Builder toolchain downloads
-        if: matrix.kind == 'bcb'
-        uses: actions/cache@v6
-        with:
-          path: .build/downloads/bcb/*.7zip
-          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-bcb-xe5u2-${{ hashFiles('ci/bcb-toolchain.json', 'ci/install-bcb.ps1') }}
-      - name: Prepare C++Builder compiler and VCL
-        if: matrix.kind == 'bcb'
-        run: ./ci/install-bcb.ps1
-      - name: Install Delphi compiler and VCL
-        if: matrix.kind == 'delphi'
-        run: ./ci/install-delphi.ps1
+          path: .build/downloads/radstudio-xe5/*.7zip
+          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-radstudio-xe5u2-${{ hashFiles('ci/radstudio-xe5-toolchain.json', 'ci/install-radstudio-xe5.ps1') }}
+      - name: Prepare RAD Studio XE5 compiler and VCL
+        if: matrix.kind == 'bcb' || matrix.kind == 'delphi'
+        run: ./ci/install-radstudio-xe5.ps1
       - name: Cache Lazarus and Free Pascal toolchain
         if: matrix.kind == 'pascal'
         id: lazarus-cache
@@ -181,9 +172,9 @@ jobs:
           if ($process.ExitCode -ne 0) { throw "Lazarus installer exited with $($process.ExitCode)" }
       - run: python ci/prepare.py
       - run: ./ci/build-windows.ps1 -Kind '${{ matrix.kind }}' -Arch '${{ matrix.arch }}'
-      - name: Verify BCB forms start and close
-        if: matrix.kind == 'bcb'
-        run: ./ci/smoke-bcb.ps1
+      - name: Verify VCL forms start and close
+        if: matrix.kind == 'bcb' || matrix.kind == 'delphi'
+        run: ./ci/smoke-vcl.ps1 -Kind '${{ matrix.kind }}'
       - name: Verify source and SDK bytes after building
         if: always()
         run: |
