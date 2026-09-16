@@ -1,0 +1,19 @@
+name: Package one project
+description: Create and upload a ZIP with the project outputs at its root.
+inputs:
+  name:
+    description: Project artifact name from ci/package.py, without the ZIP extension.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Package and verify project
+      shell: bash
+      env:
+        ARTIFACT_NAME: ${{ inputs.name }}
+      run: python ci/package.py "$ARTIFACT_NAME"
+    - uses: actions/upload-artifact@v7
+      with:
+        path: .build/archives/${{ inputs.name }}.zip
+        archive: false
+        if-no-files-found: error

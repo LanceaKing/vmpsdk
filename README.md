@@ -39,8 +39,14 @@ Windows 需要允许创建符号链接（开发者模式或管理员权限）；
 ## GitHub Actions 构建
 
 [`build.yml`](.github/workflows/build.yml) 在 push、pull request 或手动触发时运行。
-所有构建使用 `.build/work/` 中的副本，产物放在 `.build/artifacts/` 并上传至 Actions artifacts。
+所有构建使用 `.build/work/` 中的副本，构建输出放在 `.build/artifacts/`。每个项目分别打包到 `.build/archives/` 并上传至 Actions artifacts。
 构建前后校验全部导入文件；构建副本也校验原始文件摘要。源文件、工程及 SDK 不打补丁、不重写、不自动升级。
+
+下载文件统一命名为 `<平台>-<架构>-<工具链>-<项目>.zip`，例如 `windows-x86-masm-markers.zip`、`linux-x64-gcc-markers.zip`、`macos-x64-xcode-licensing.zip`。
+平台和架构表示实际产物：MinGW 交叉编译使用 `windows-x86`，原始 .NET 工程使用 `windows-any`。
+ZIP 根目录直接包含该项目的程序和运行依赖；macOS `.app` 和 `.dSYM` 保留自身目录结构。KeyGen 库与调用示例分别使用 `keygen`、`keygen-usage`，调用示例携带所需的库。
+打包保留运行配置、manifest、映射文件、调试符号和导入库，排除构建中间文件。Unix 执行权限和符号链接保存在 ZIP 中。
+[`package.py`](ci/package.py) 定义每个项目的文件清单；上传使用 `archive: false`，下载后无需再解开一层压缩包。后续修改遵守 [`AGENTS.md`](AGENTS.md)。
 
 使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows MASM32 / VB6 工具链下载包、.NET 引用程序集和 Lazarus/FPC 安装目录。
 缓存键包含 runner 平台、架构及依赖版本或安装脚本摘要；APT 还包含解析后的安装计划摘要。依赖变化会生成新缓存。
@@ -69,7 +75,7 @@ GUI 示例只验证编译和链接，不自动点击窗口。KeyGen 调用示例
 MASM 使用 [CodingCrew 的 MASM32 v9 安装包](https://www.codingcrew.de/masm32/download/m32v9r.zip)，SHA-256 固定为 `000a660fce59e619ea608a889b9ae1e43ad1dfcb81ef79ca22a0d67503cd0205`。
 [`install-masm32.ps1`](ci/install-masm32.ps1) 校验下载或缓存的安装包，用 runner 自带的 7-Zip 提取 `install.exe` 内嵌的数据，并编译 MASM32 静态库；不运行交互式安装器。
 旧 `inc2l.exe` 在 Windows Server 2022 上报 `0xC0000005`，因此 Windows API 导入库使用 runner 已安装的 Windows SDK x86 版本，MASM32 宏、头文件和运行库源码保持原样。
-SDK 放在仓库所在盘的 `\masm32`（已有目录则拒绝覆盖），满足原始源码的绝对路径引用。构建上传 `windows-masm-x86` artifact，内含 `masm-x86/Project1.exe` 和 `VMProtectSDK32.dll`。
+SDK 放在仓库所在盘的 `\masm32`（已有目录则拒绝覆盖），满足原始源码的绝对路径引用。构建上传 `windows-x86-masm-markers.zip`，根目录包含 `Project1.exe` 和 `VMProtectSDK32.dll`。
 
 VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb6-portable/tree/01ecb4d13e5ec00c8986dfec86dce46f923a4f3b)，固定 commit `01ecb4d13e5ec00c8986dfec86dce46f923a4f3b`，ZIP SHA-256 为 `7d58685bd0b6c6313a5c95200e9250d15288aae47bd124189dcf6f98fd9c9576`。
 [`install-vb6.ps1`](ci/install-vb6.ps1) 每次校验下载或缓存的 ZIP，将包内全部文件解压到 `.build/vb6/`（去掉 ZIP 最外层目录），用 32 位进程注册 VBA6 / VB6 类型库；直接调用 `VB6.exe`，不运行包内便携启动器或注册表安装器。工具链的版权及许可仍归原权利人所有。
@@ -78,7 +84,7 @@ VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb
 此 MSI 默认要求已安装 VB6 SP6，否则返回 `1603`。portable 没有安装记录，因此脚本显式传入 `VB6PRODUCTDIR`、`VB6COMMONDIR` 和 `VB6SP6REGKEY="#6"`，跳过其 SP6 安装记录检查；不写入虚假的系统 SP6 注册项。更新包仅安装控件，编译器仍为 `6.00.8176`。
 即使没有数据库绑定，VB6 编译带 `TextBox` / `Label` 的窗体仍需要这个组件；缺失时 VB6 6.00.8176 会以 `0xC0000005` 崩溃。注册代码直接传给 32 位 PowerShell 执行，不生成额外脚本文件。
 两个工程按原始编译选项构建，不修改 `.vbp`、窗体或 SDK。每个工程限时 120 秒，同时检查进程退出码、成功日志和非空 EXE；缺少工具链或编译失败会使 job 失败。
-`windows-vb6-x86` artifact 包含 `markers-vb6-x86/Project1.exe`、`licensing-vb6-x86/TestApp.exe` 及各自的 `VMProtectSDK32.dll`。
+VB6 分别上传 `windows-x86-vb6-markers.zip` 和 `windows-x86-vb6-licensing.zip`。根目录包含各自的 `Project1.exe` 或 `TestApp.exe`，以及 `VMProtectSDK32.dll`。
 
 ### 未纳入标准 runner 的项目
 
@@ -97,6 +103,7 @@ python3 ci/prepare.py
 # Linux：预先安装 g++-multilib、g++-mingw-w64-i686
 bash ci/build-unix.sh linux
 python3 ci/verify.py --root .build/work --build-tree
+python3 ci/package.py linux-x64-gcc-markers
 ```
 
 macOS 使用 `gcc`、`fpc`、`xcode-markers` 或 `xcode-licensing` 参数。需要 Intel Mac；本包的 Mach-O SDK 只有 i386/x86_64，没有 ARM64。

@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Verify imported files
         run: python3 ci/verify.py
+      - name: Test artifact packaging
+        run: python3 -m unittest discover -s ci -p 'test_*.py'
       - name: Resolve compiler packages
         id: apt-packages
         run: |
@@ -42,13 +44,15 @@ jobs:
         run: |
           python3 ci/verify.py
           python3 ci/verify.py --root .build/work --build-tree
-      - name: Package executables with runtime libraries
-        run: tar -czf .build/linux-mingw.tar.gz -C .build/artifacts .
-      - uses: actions/upload-artifact@v7
+      - uses: ./.github/actions/package-project
         with:
-          name: linux-mingw
-          path: .build/linux-mingw.tar.gz
-          if-no-files-found: error
+          name: linux-x86-gcc-markers
+      - uses: ./.github/actions/package-project
+        with:
+          name: linux-x64-gcc-markers
+      - uses: ./.github/actions/package-project
+        with:
+          name: windows-x86-mingw-markers
 
   macos:
     name: macOS x64 / ${{ matrix.example }}
@@ -60,7 +64,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        example: [gcc, fpc, xcode-markers, xcode-licensing]
+        include:
+          - {example: gcc, artifact: macos-x64-gcc-markers}
+          - {example: fpc, artifact: macos-x64-fpc-markers}
+          - {example: xcode-markers, artifact: macos-x64-xcode-markers}
+          - {example: xcode-licensing, artifact: macos-x64-xcode-licensing}
     steps:
       - uses: actions/checkout@v7
       - run: python3 ci/verify.py
@@ -86,13 +94,9 @@ jobs:
         run: |
           python3 ci/verify.py
           python3 ci/verify.py --root .build/work --build-tree
-      - name: Preserve executable permissions in artifact
-        run: tar -czf .build/macos-${{ matrix.example }}.tar.gz -C .build/artifacts .
-      - uses: actions/upload-artifact@v7
+      - uses: ./.github/actions/package-project
         with:
-          name: macos-${{ matrix.example }}-x64
-          path: .build/macos-${{ matrix.example }}.tar.gz
-          if-no-files-found: error
+          name: ${{ matrix.artifact }}
 
   windows:
     name: Windows / ${{ matrix.kind }} / ${{ matrix.arch }}
@@ -164,8 +168,55 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python ci/verify.py --root .build/work --build-tree
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - uses: actions/upload-artifact@v7
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'native'
         with:
-          name: windows-${{ matrix.kind }}-${{ matrix.arch }}
-          path: .build/artifacts/
-          if-no-files-found: error
+          name: windows-${{ matrix.arch }}-msvc-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'native'
+        with:
+          name: windows-${{ matrix.arch }}-msvc-licensing
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'native'
+        with:
+          name: windows-${{ matrix.arch }}-msvc-keygen
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'native'
+        with:
+          name: windows-${{ matrix.arch }}-msvc-keygen-usage
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'masm'
+        with:
+          name: windows-x86-masm-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'vb6'
+        with:
+          name: windows-x86-vb6-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'vb6'
+        with:
+          name: windows-x86-vb6-licensing
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'managed'
+        with:
+          name: windows-any-net-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'managed'
+        with:
+          name: windows-any-net-licensing
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'managed'
+        with:
+          name: windows-any-net-keygen
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'managed'
+        with:
+          name: windows-any-net-keygen-usage
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'pascal'
+        with:
+          name: windows-x86-fpc-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'pascal'
+        with:
+          name: windows-x86-lazarus-markers
