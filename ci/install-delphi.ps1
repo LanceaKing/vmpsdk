@@ -91,6 +91,7 @@ try {
         }
         foreach ($window in [DelphiSetupUI]::Windows([IntPtr]::Zero)) {
             if ($window.ProcessId -notin $owners) { continue }
+            if ($window.Class -notin @('#32770', 'TWizardForm')) { continue }
             $controls = @([DelphiSetupUI]::Windows($window.Handle))
             $state = (@($window) + $controls | ForEach-Object { "$($_.Class): $($_.Text) [enabled=$($_.Enabled)]" }) -join "`n"
             if ($state -ne $lastState) {
@@ -118,7 +119,7 @@ try {
                 [DelphiSetupUI]::Click($launch.Handle)
                 continue
             }
-            $next = $buttons | Where-Object { $_.Text.Replace('&', '').Trim() -in @('Next >', 'Install', 'Finish') } | Select-Object -First 1
+            $next = $buttons | Where-Object { $_.Text.Replace('&', '').Trim() -in @('Next >', 'I Agree >', 'Install', 'Finish') } | Select-Object -First 1
             if ($next) { [DelphiSetupUI]::Click($next.Handle) }
         }
     }
