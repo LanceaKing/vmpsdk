@@ -9,95 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  linux:
-    name: Linux GCC x86 + x64 and MinGW x86
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-      - name: Verify imported files
-        run: python3 ci/verify.py
-      - name: Test artifact packaging
-        run: python3 -m unittest discover -s ci -p 'test_*.py'
-      - name: Resolve compiler packages
-        id: apt-packages
-        run: |
-          sudo apt-get update
-          mkdir -p .build/apt-archives/partial
-          apt-get --print-uris -y install g++-multilib g++-mingw-w64-i686 > .build/apt-plan.txt
-          echo "digest=$(sha256sum .build/apt-plan.txt | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
-      - name: Cache compiler package downloads
-        uses: actions/cache@v6
-        with:
-          path: .build/apt-archives/*.deb
-          key: ${{ runner.os }}-${{ runner.arch }}-ubuntu-24.04-apt-v1-${{ steps.apt-packages.outputs.digest }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-ubuntu-24.04-apt-v1-
-      - name: Install compilers
-        run: |
-          sudo apt-get -o Dir::Cache::archives="$PWD/.build/apt-archives" \
-            -o APT::Keep-Downloaded-Packages=true install -y g++-multilib g++-mingw-w64-i686
-      - run: python3 ci/prepare.py
-      - run: bash ci/build-unix.sh linux
-      - name: Verify source and SDK bytes after building
-        if: always()
-        run: |
-          python3 ci/verify.py
-          python3 ci/verify.py --root .build/work --build-tree
-      - uses: ./.github/actions/package-project
-        with:
-          name: linux-x86-gcc-markers
-      - uses: ./.github/actions/package-project
-        with:
-          name: linux-x64-gcc-markers
-      - uses: ./.github/actions/package-project
-        with:
-          name: windows-x86-mingw-markers
-
-  macos:
-    name: macOS x64 / ${{ matrix.example }}
-    runs-on: macos-15-intel
-    timeout-minutes: 25
-    env:
-      HOMEBREW_NO_AUTO_UPDATE: '1'
-      HOMEBREW_NO_INSTALL_CLEANUP: '1'
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - {example: gcc, artifact: macos-x64-gcc-markers}
-          - {example: fpc, artifact: macos-x64-fpc-markers}
-          - {example: xcode-markers, artifact: macos-x64-xcode-markers}
-          - {example: xcode-licensing, artifact: macos-x64-xcode-licensing}
-    steps:
-      - uses: actions/checkout@v7
-      - run: python3 ci/verify.py
-      - name: Resolve Free Pascal package
-        if: matrix.example == 'fpc'
-        id: brew-fpc
-        run: |
-          echo "path=$(brew --cache)" >> "$GITHUB_OUTPUT"
-          brew info --json=v2 fpc | python3 -c 'import json, sys; f = json.load(sys.stdin)["formulae"][0]; print("version=" + f["versions"]["stable"] + "-" + str(f["revision"]))' >> "$GITHUB_OUTPUT"
-      - name: Cache Free Pascal download
-        if: matrix.example == 'fpc'
-        uses: actions/cache@v6
-        with:
-          path: ${{ steps.brew-fpc.outputs.path }}/downloads/*--fpc-*
-          key: ${{ runner.os }}-${{ runner.arch }}-macos-15-intel-fpc-v1-${{ steps.brew-fpc.outputs.version }}
-      - name: Install Free Pascal
-        if: matrix.example == 'fpc'
-        run: brew install fpc
-      - run: python3 ci/prepare.py
-      - run: bash ci/build-unix.sh '${{ matrix.example }}'
-      - name: Verify source and SDK bytes after building
-        if: always()
-        run: |
-          python3 ci/verify.py
-          python3 ci/verify.py --root .build/work --build-tree
-      - uses: ./.github/actions/package-project
-        with:
-          name: ${{ matrix.artifact }}
-
   windows:
     name: Windows / ${{ matrix.kind }} / ${{ matrix.arch }}
     runs-on: windows-2022
@@ -106,12 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {kind: native, arch: x86}
-          - {kind: native, arch: x64}
-          - {kind: masm, arch: x86}
-          - {kind: vb6, arch: x86}
-          - {kind: managed, arch: x86}
-          - {kind: pascal, arch: x86}
+          - {kind: delphi, arch: x86}
     steps:
       - name: Enable real Git symlinks before checkout
         run: git config --global core.symlinks true
@@ -143,6 +49,15 @@ jobs:
       - name: Prepare VB6 compiler
         if: matrix.kind == 'vb6'
         run: ./ci/install-vb6.ps1
+      - name: Cache Delphi installer download
+        if: matrix.kind == 'delphi'
+        uses: actions/cache@v6
+        with:
+          path: .build/downloads/delphi/*.rar
+          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-delphi7-${{ hashFiles('ci/install-delphi.ps1') }}
+      - name: Install Delphi compiler and VCL
+        if: matrix.kind == 'delphi'
+        run: ./ci/install-delphi.ps1
       - name: Cache Lazarus and Free Pascal toolchain
         if: matrix.kind == 'pascal'
         id: lazarus-cache
@@ -196,6 +111,18 @@ jobs:
         if: matrix.kind == 'vb6'
         with:
           name: windows-x86-vb6-licensing
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'delphi'
+        with:
+          name: windows-x86-delphi-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'delphi'
+        with:
+          name: windows-x86-delphi-licensing
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'delphi'
+        with:
+          name: windows-x86-delphi-keygen-usage
       - uses: ./.github/actions/package-project
         if: matrix.kind == 'managed'
         with:

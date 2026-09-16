@@ -24,6 +24,15 @@ PROJECTS = {
         'markers-vb6-x86', ('Project1.exe', 'VMProtectSDK32.dll')),
     'windows-x86-vb6-licensing': Project(
         'licensing-vb6-x86', ('TestApp.exe', 'VMProtectSDK32.dll')),
+    'windows-x86-delphi-markers': Project(
+        'markers-delphi-x86', ('Project1.exe', 'VMProtectSDK32.dll', 'Project1.map'),
+        ('Project1.tds', 'Project1.exe.manifest')),
+    'windows-x86-delphi-licensing': Project(
+        'licensing-delphi-x86', ('TestApp.exe', 'VMProtectSDK32.dll', 'TestApp.map'),
+        ('TestApp.tds', 'TestApp.exe.manifest')),
+    'windows-x86-delphi-keygen-usage': Project(
+        'keygen-usage-delphi-x86', ('KeyGenExample.exe', 'KeyGen32.dll', 'KeyGenExample.map'),
+        ('KeyGenExample.tds', 'KeyGenExample.exe.manifest')),
     'windows-x86-fpc-markers': Project(
         'fpc-x86', ('Project1.exe', 'VMProtectSDK32.dll')),
     'windows-x86-lazarus-markers': Project(

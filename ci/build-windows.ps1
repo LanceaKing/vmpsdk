@@ -1,11 +1,12 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('native', 'masm', 'vb6', 'managed', 'pascal')][string]$Kind,
+    [ValidateSet('native', 'masm', 'vb6', 'delphi', 'managed', 'pascal')][string]$Kind,
     [ValidateSet('x86', 'x64')][string]$Arch = 'x86'
 )
 $ErrorActionPreference = 'Stop'
 if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports only x86' }
 if ($Kind -eq 'vb6' -and $Arch -ne 'x86') { throw 'The VB6 examples support only x86' }
+if ($Kind -eq 'delphi' -and $Arch -ne 'x86') { throw 'The Delphi 7 examples support only x86' }
 $root = Split-Path $PSScriptRoot -Parent
 $work = Join-Path $root '.build/work'
 $out = Join-Path $root '.build/artifacts'
@@ -120,6 +121,46 @@ if ($Kind -eq 'native') {
             if (Test-Path $log) { Get-Content $log | Write-Host }
             $process.Dispose()
         }
+    }
+} elseif ($Kind -eq 'delphi') {
+    $sdk = "$root\.build\delphi"
+    $compiler = "$sdk\Bin\dcc32.exe"
+    if (!(Test-Path $compiler)) { throw 'Delphi compiler missing; run ci/install-delphi.ps1 first' }
+    foreach ($example in @(
+        @{Folder='Code Markers'; Name='Project1'; Artifact='markers-delphi-x86'; Runtime='Lib\Windows\VMProtectSDK32.dll'},
+        @{Folder='Licensing'; Name='TestApp'; Artifact='licensing-delphi-x86'; Runtime='Lib\Windows\VMProtectSDK32.dll'},
+        @{Folder='KeyGen\DLL'; Name='KeyGenExample'; Artifact='keygen-usage-delphi-x86'; Runtime='Examples\KeyGen\DLL\Lib\KeyGen32.dll'}
+    )) {
+        $dest = Directory "$out\$($example.Artifact)"
+        $obj = Directory "$root\.build\obj\$($example.Artifact)"
+        $exe = "$dest\$($example.Name).exe"
+        if (Test-Path $exe) { throw "Refusing to overwrite existing Delphi executable: $exe" }
+        Push-Location "$work\Examples\$($example.Folder)\Delphi"
+        try {
+            # The imported Licensing project references a missing TestApp.res.
+            # Generate an empty resource in the build tree; do not rewrite the DPR.
+            if ($example.Folder -eq 'Licensing' -and !(Test-Path 'TestApp.res')) {
+                '// The imported project has no icon or version resource.' | Set-Content -Encoding ascii "$obj\TestApp.rc"
+                Run "$sdk\Bin\brcc32.exe" @('-foTestApp.res', "$obj\TestApp.rc")
+            }
+            # Invoke the original DPR without upgrading old DOF/DPROJ files.
+            # -E also directs the new map away from the imported TestApp.map.
+            Run $compiler @('-B', '-Q', '-GD', "-E$dest", "-N$obj", "-U$sdk\Lib", "-I$sdk\Lib", "-R$sdk\Lib", "$($example.Name).dpr")
+            foreach ($output in @($exe, "$dest\$($example.Name).map")) {
+                if (!(Test-Path $output) -or (Get-Item $output).Length -eq 0) {
+                    throw "Missing Delphi build output: $output"
+                }
+            }
+            Copy-Item "$work\$($example.Runtime)" $dest
+            if ($example.Name -eq 'KeyGenExample') {
+                # Original product parameters are empty: Error: 2 is expected.
+                $result = & $exe
+                if ($LASTEXITCODE -ne 0 -or ($result | Out-String).Trim() -ne 'Error: 2') {
+                    throw "Unexpected Delphi KeyGen result: $result (exit $LASTEXITCODE)"
+                }
+                Write-Host $result
+            }
+        } finally { Pop-Location }
     }
 } elseif ($Kind -eq 'managed') {
     $packages = Directory "$root\.build\packages"

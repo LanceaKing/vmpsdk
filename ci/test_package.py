@@ -67,6 +67,28 @@ class PackageTests(unittest.TestCase):
                 with zipfile.ZipFile(output) as archive:
                     self.assertEqual(set(archive.namelist()), expected)
 
+    def test_delphi_projects_include_maps_and_their_own_runtime(self):
+        for project, executable, runtime in (
+            ('markers', 'Project1', 'VMProtectSDK32.dll'),
+            ('licensing', 'TestApp', 'VMProtectSDK32.dll'),
+            ('keygen-usage', 'KeyGenExample', 'KeyGen32.dll'),
+        ):
+            with self.subTest(project=project):
+                folder = f'{project}-delphi-x86'
+                expected = {f'{executable}.exe', f'{executable}.map', runtime}
+                for name in expected | {'Unit1.dcu', 'TestApp.res', 'build.log', 'AnotherProject.exe'}:
+                    self.file(f'{folder}/{name}')
+                output = self.build_zip(f'windows-x86-delphi-{project}')
+                self.assertEqual(output.name, f'windows-x86-delphi-{project}.zip')
+                with zipfile.ZipFile(output) as archive:
+                    self.assertEqual(set(archive.namelist()), expected)
+
+    def test_delphi_keygen_requires_its_runtime(self):
+        self.file('keygen-usage-delphi-x86/KeyGenExample.exe')
+        self.file('keygen-usage-delphi-x86/KeyGenExample.map')
+        with self.assertRaisesRegex(ValueError, 'KeyGen32.dll'):
+            self.build_zip('windows-x86-delphi-keygen-usage')
+
     def test_net_any_architecture_and_separate_projects(self):
         for name in ['VMProtect.KeyGen.dll', 'VMProtect.KeyGen.pdb', 'Usage.exe', 'Usage.exe.config', 'Usage.pdb']:
             self.file(f'keygen-net/{name}')
