@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('native', 'masm', 'vb6', 'bcb', 'delphi', 'ddk', 'managed', 'pascal')][string]$Kind,
+    [ValidateSet('msvc', 'masm', 'vb6', 'bcb', 'delphi', 'ddk', 'net', 'fpc', 'lazarus')][string]$Kind,
     [ValidateSet('x86', 'x64')][string]$Arch = 'x86'
 )
 $ErrorActionPreference = 'Stop'
@@ -8,6 +8,7 @@ if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports on
 if ($Kind -eq 'vb6' -and $Arch -ne 'x86') { throw 'The VB6 examples support only x86' }
 if ($Kind -eq 'bcb' -and $Arch -ne 'x86') { throw 'The BCB examples support only x86' }
 if ($Kind -eq 'delphi' -and $Arch -ne 'x86') { throw 'The Delphi examples support only x86' }
+if ($Kind -in @('fpc', 'lazarus') -and $Arch -ne 'x86') { throw 'The Windows FPC and Lazarus examples support only x86' }
 if ($Kind -eq 'ddk') {
     if ($Arch -ne 'x86') { throw 'The original DDK project supports only x86' }
     & "$PSScriptRoot/build-ddk.ps1"
@@ -24,14 +25,14 @@ function Directory([string]$Path) {
     New-Item -ItemType Directory -Force -Path $Path | Out-Null
     return $Path
 }
-if ($Kind -in @('native', 'managed')) {
+if ($Kind -in @('msvc', 'net')) {
     $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
     $vs = & $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -property installationPath
     if (!$vs) { throw 'Visual Studio not found' }
     Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
     Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments "-arch=$Arch -host_arch=x64"
 }
-if ($Kind -eq 'native') {
+if ($Kind -eq 'msvc') {
     $bits = if ($Arch -eq 'x64') { '64' } else { '32' }
     foreach ($example in @(
         @{Folder='Code Markers'; Name='Project1'; Resource='Resource.rc'; Artifact='markers'},
@@ -55,7 +56,7 @@ if ($Kind -eq 'native') {
                       '/link', '/SUBSYSTEM:WINDOWS', 'user32.lib', "/LIBPATH:$work\Lib\Windows"))
             }
             Copy-Item "$work\Lib\Windows\VMProtectSDK$bits.dll" $dest
-            if (!(Test-Path "$dest\$($example.Name).exe")) { throw 'Missing native executable' }
+            if (!(Test-Path "$dest\$($example.Name).exe")) { throw 'Missing MSVC executable' }
         } finally { Pop-Location }
     }
     # Modern MSBuild cannot open VS2008 vcproj files. Compile the listed source files
@@ -213,7 +214,7 @@ if ($Kind -eq 'native') {
             }
         } finally { Pop-Location }
     }
-} elseif ($Kind -eq 'managed') {
+} elseif ($Kind -eq 'net') {
     $packages = Directory "$root\.build\packages"
     foreach ($framework in @('net20', 'net40')) {
         Run 'nuget' @('install', "Microsoft.NETFramework.ReferenceAssemblies.$framework", '-Version', '1.0.3',
@@ -235,26 +236,29 @@ if ($Kind -eq 'native') {
             "/p:ReferencePath=$referencePath",
             '/p:GenerateResourceMSBuildRuntime=CurrentRuntime', '/p:GenerateResourceMSBuildArchitecture=CurrentArchitecture')
     }
-} elseif ($Kind -eq 'pascal') {
+} elseif ($Kind -in @('fpc', 'lazarus')) {
     $lazarus = 'C:\lazarus'
     $fpcbin = "$lazarus\fpc\3.2.2\bin\i386-win32"
     if (!(Test-Path "$fpcbin\fpc.exe")) { throw 'Lazarus 4.0 with FPC 3.2.2 (Win32) is required' }
-    $dest = Directory "$out\fpc-x86"
-    Push-Location "$work\Examples\Code Markers\Free Pascal"
-    try {
-        # Same compile and strip options as makeit.bat; only the compiler location differs.
-        Run "$fpcbin\fpc.exe" @('-TWin32', '-Sd', '-WG', 'Project1.pas')
-        Run "$fpcbin\strip.exe" @('Project1.exe')
-        Copy-Item Project1.exe, VMProtectSDK32.dll $dest
-    } finally { Pop-Location }
-    $dest = Directory "$out\lazarus-x86"
-    Push-Location "$work\Examples\Code Markers\Lazarus"
-    try {
-        # Invoke FPC with Lazarus' precompiled LCL units to avoid lpi auto-upgrades.
-        Run "$fpcbin\fpc.exe" @('-TWin32', '-Sd', '-WG',
-            "-Fu$lazarus\lcl\units\i386-win32", "-Fu$lazarus\lcl\units\i386-win32\win32",
-            "-Fu$lazarus\components\lazutils\lib\i386-win32", "-Fu$lazarus\packager\units\i386-win32",
-            'project1.lpr')
-        Copy-Item project1.exe, VMProtectSDK32.dll $dest
-    } finally { Pop-Location }
+    if ($Kind -eq 'fpc') {
+        $dest = Directory "$out\fpc-x86"
+        Push-Location "$work\Examples\Code Markers\Free Pascal"
+        try {
+            # Same compile and strip options as makeit.bat; only the compiler location differs.
+            Run "$fpcbin\fpc.exe" @('-TWin32', '-Sd', '-WG', 'Project1.pas')
+            Run "$fpcbin\strip.exe" @('Project1.exe')
+            Copy-Item Project1.exe, VMProtectSDK32.dll $dest
+        } finally { Pop-Location }
+    } else {
+        $dest = Directory "$out\lazarus-x86"
+        Push-Location "$work\Examples\Code Markers\Lazarus"
+        try {
+            # Invoke FPC with Lazarus' precompiled LCL units to avoid lpi auto-upgrades.
+            Run "$fpcbin\fpc.exe" @('-TWin32', '-Sd', '-WG',
+                "-Fu$lazarus\lcl\units\i386-win32", "-Fu$lazarus\lcl\units\i386-win32\win32",
+                "-Fu$lazarus\components\lazutils\lib\i386-win32", "-Fu$lazarus\packager\units\i386-win32",
+                'project1.lpr')
+            Copy-Item project1.exe, VMProtectSDK32.dll $dest
+        } finally { Pop-Location }
+    }
 }

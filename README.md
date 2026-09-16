@@ -68,7 +68,8 @@ ZIP 根目录直接包含该项目的程序和运行依赖；macOS `.app` 和 `.
 | Windows 2022 | Licensing DDK，x86 | WDK 7.1，直接运行原 `make.bat`、`MAKEFILE` 和 `SOURCES`，使用 XP free 构建环境 |
 | Windows 2022 | KeyGen DLL 和调用示例，x86 / x64 | 按旧 `.vcproj` 的源文件、资源与 `.def` 构建；原工程无需转换 |
 | Windows 2022 | .NET Code Markers / Licensing / KeyGen / Usage | 原 `.csproj`，NuGet reference assemblies 保留 v2.0 / v4.0 目标框架，命令行补齐引用路径 |
-| Windows 2022 | Free Pascal / Lazarus Code Markers，x86 | Lazarus 4.0 / FPC 3.2.2；FPC 沿用 `makeit.bat` 参数；Lazarus 使用原源文件及预编译 LCL units |
+| Windows 2022 | Free Pascal Code Markers，x86 | FPC 3.2.2，沿用 `makeit.bat` 参数，独立 `fpc` job |
+| Windows 2022 | Lazarus Code Markers，x86 | Lazarus 4.0 / FPC 3.2.2，使用原源文件及预编译 LCL units，独立 `lazarus` job |
 
 GUI 示例验证编译和链接；BCB 和 Delphi 还在原生 Windows runner 上检查各自两个主窗口的标题及正常关闭，不测试按钮或授权流程。KeyGen 调用示例使用原有空产品参数，因此运行输出错误码是示例的预期行为，不能视为实际签发验证。
 这里构建的是未保护示例，不执行 VMProtect 加壳，也不证明授权服务或保护后的程序行为。
@@ -127,10 +128,11 @@ python3 ci/package.py linux-x64-gcc-markers
 ```
 
 macOS 使用 `gcc`、`fpc`、`xcode-markers` 或 `xcode-licensing` 参数。需要 Intel Mac；本包的 Mach-O SDK 只有 i386/x86_64，没有 ARM64。
-Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `masm` / `vb6` / `bcb` / `delphi` / `ddk` / `managed` / `pascal`；环境准备见 workflow。
+Windows 使用 `./ci/build-windows.ps1 -Kind msvc -Arch x86`，或 `masm` / `vb6` / `bcb` / `delphi` / `ddk` / `net` / `fpc` / `lazarus`；环境准备见 workflow。
 MASM 只支持 x86：准备 7-Zip 后运行 `./ci/install-masm32.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind masm -Arch x86`。
 VB6 只支持 x86：在 Windows x64 / PowerShell 7.4+ 环境运行 `./ci/install-vb6.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind vb6 -Arch x86`。安装 MSI 和注册组件需要管理员权限；GitHub Windows runner 已具备该权限。
 BCB 和 Delphi 只支持 x86：在 Windows / PowerShell 7 环境准备 7-Zip，运行 `./ci/install-radstudio-xe5.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind bcb -Arch x86` 或 `-Kind delphi -Arch x86`。
 DDK 原工程只配置 x86：在 Windows / PowerShell 7 环境准备 7-Zip，以管理员权限运行 `./ci/install-wdk71.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind ddk -Arch x86`。
+Windows FPC 和 Lazarus 使用同一套 `C:\lazarus` 工具链安装和缓存，分别通过 `-Kind fpc -Arch x86` 和 `-Kind lazarus -Arch x86` 构建，各自上传 `windows-x86-fpc-markers.zip` 和 `windows-x86-lazarus-markers.zip`。
 
 参考：[GitHub runner 标签](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)、[Windows 2022 工具清单](https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md)、[Free Pascal 下载](https://www.freepascal.org/download.html)。

@@ -106,15 +106,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {kind: native, arch: x86}
-          - {kind: native, arch: x64}
+          - {kind: msvc, arch: x86}
+          - {kind: msvc, arch: x64}
           - {kind: masm, arch: x86}
           - {kind: vb6, arch: x86}
           - {kind: bcb, arch: x86}
           - {kind: delphi, arch: x86}
           - {kind: ddk, arch: x86}
-          - {kind: managed, arch: x86}
-          - {kind: pascal, arch: x86}
+          - {kind: net, arch: x86}
+          - {kind: fpc, arch: x86}
+          - {kind: lazarus, arch: x86}
     steps:
       - name: Enable real Git symlinks before checkout
         run: git config --global core.symlinks true
@@ -139,7 +140,7 @@ jobs:
         if: matrix.kind == 'masm'
         run: ./ci/install-masm32.ps1
       - name: Cache .NET reference assemblies
-        if: matrix.kind == 'managed'
+        if: matrix.kind == 'net'
         uses: actions/cache@v6
         with:
           path: .build/packages
@@ -165,14 +166,14 @@ jobs:
         if: matrix.kind == 'bcb' || matrix.kind == 'delphi'
         run: ./ci/install-radstudio-xe5.ps1
       - name: Cache Lazarus and Free Pascal toolchain
-        if: matrix.kind == 'pascal'
+        if: matrix.kind == 'fpc' || matrix.kind == 'lazarus'
         id: lazarus-cache
         uses: actions/cache@v6
         with:
           path: C:\lazarus
           key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-lazarus-4.0-fpc-3.2.2-win32-v1
       - name: Install Lazarus and Free Pascal
-        if: matrix.kind == 'pascal' && steps.lazarus-cache.outputs.cache-hit != 'true'
+        if: (matrix.kind == 'fpc' || matrix.kind == 'lazarus') && steps.lazarus-cache.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           $url = 'https://download.lazarus-ide.org/Lazarus%20Windows%2032%20bits/Lazarus%204.0/lazarus-4.0-fpc-3.2.2-win32.exe'
@@ -193,19 +194,19 @@ jobs:
           python ci/verify.py --root .build/work --build-tree
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'native'
+        if: matrix.kind == 'msvc'
         with:
           name: windows-${{ matrix.arch }}-msvc-markers
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'native'
+        if: matrix.kind == 'msvc'
         with:
           name: windows-${{ matrix.arch }}-msvc-licensing
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'native'
+        if: matrix.kind == 'msvc'
         with:
           name: windows-${{ matrix.arch }}-msvc-keygen
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'native'
+        if: matrix.kind == 'msvc'
         with:
           name: windows-${{ matrix.arch }}-msvc-keygen-usage
       - uses: ./.github/actions/package-project
@@ -245,26 +246,26 @@ jobs:
         with:
           name: windows-x86-bcb-licensing
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'managed'
+        if: matrix.kind == 'net'
         with:
           name: windows-any-net-markers
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'managed'
+        if: matrix.kind == 'net'
         with:
           name: windows-any-net-licensing
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'managed'
+        if: matrix.kind == 'net'
         with:
           name: windows-any-net-keygen
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'managed'
+        if: matrix.kind == 'net'
         with:
           name: windows-any-net-keygen-usage
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'pascal'
+        if: matrix.kind == 'fpc'
         with:
           name: windows-x86-fpc-markers
       - uses: ./.github/actions/package-project
-        if: matrix.kind == 'pascal'
+        if: matrix.kind == 'lazarus'
         with:
           name: windows-x86-lazarus-markers
