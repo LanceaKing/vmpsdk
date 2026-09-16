@@ -48,7 +48,8 @@ foreach ($id in $coreLicenses.Keys) {
     try { $key.SetValue('', $coreLicenses[$id]) } finally { $key.Dispose() }
 }
 '@ | Set-Content -Encoding ascii $registration
+$arguments = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $registration
 $process = Start-Process "$env:SystemRoot\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" `
-    -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$registration`"" -Wait -PassThru
+    -ArgumentList $arguments -Wait -PassThru
 if ($process.ExitCode -ne 0) { throw "VB6 registration exited with $($process.ExitCode)" }
 Write-Host "VB6 $((Get-Item "$sdk\Vb6.exe").VersionInfo.FileVersion) ready: $sdk"

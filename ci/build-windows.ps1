@@ -98,10 +98,9 @@ if ($Kind -eq 'native') {
         # A stale executable must never turn a failed compilation into a pass.
         if (Test-Path $exe) { throw "Refusing to overwrite existing VB6 executable: $exe" }
         if (Test-Path $log) { Remove-Item $log }
-        $process = Start-Process $compiler -WorkingDirectory $projectDir -PassThru -ArgumentList @(
-            '/make', "`"$projectDir\$($example.Name).vbp`"",
-            '/out', "`"$log`"", '/outdir', "`"$dest`""
-        )
+        $arguments = '/make {0}.vbp /out "{1}" /outdir "{2}"' -f $example.Name, $log, $dest
+        Write-Host "VB6 arguments: $arguments"
+        $process = Start-Process $compiler -WorkingDirectory $projectDir -PassThru -ArgumentList $arguments
         try {
             if (!$process.WaitForExit(120000)) {
                 $process.Kill($true)
