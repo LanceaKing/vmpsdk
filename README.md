@@ -66,7 +66,8 @@ GUI 示例只验证编译和链接，不自动点击窗口。KeyGen 调用示例
 兼容参数也仅限 CI：MinGW 在外部 include 目录建立 `Resource.h` → 原 `resource.h` 的别名，以适配 Linux 大小写规则；KeyGen DLL 用 MSVC `/FIstring` 补充旧 STL 曾间接包含的标准头文件。
 
 MASM 使用 [CodingCrew 的 MASM32 v9 安装包](https://www.codingcrew.de/masm32/download/m32v9r.zip)，SHA-256 固定为 `000a660fce59e619ea608a889b9ae1e43ad1dfcb81ef79ca22a0d67503cd0205`。
-[`install-masm32.ps1`](ci/install-masm32.ps1) 校验下载或缓存的安装包，用 runner 自带的 7-Zip 提取 `install.exe` 内嵌的数据，再生成示例需要的 Windows import libraries 和 MASM32 静态库；不运行交互式安装器。
+[`install-masm32.ps1`](ci/install-masm32.ps1) 校验下载或缓存的安装包，用 runner 自带的 7-Zip 提取 `install.exe` 内嵌的数据，并编译 MASM32 静态库；不运行交互式安装器。
+旧 `inc2l.exe` 在 Windows Server 2022 上报 `0xC0000005`，因此 Windows API 导入库使用 runner 已安装的 Windows SDK x86 版本，MASM32 宏、头文件和运行库源码保持原样。
 SDK 放在仓库所在盘的 `\masm32`（已有目录则拒绝覆盖），满足原始源码的绝对路径引用。构建上传 `windows-masm-x86` artifact，内含 `masm-x86/Project1.exe` 和 `VMProtectSDK32.dll`。
 
 ### 未纳入标准 runner 的项目

@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-# The unmodified sample and MASM32's library builder use \masm32 on the current drive.
+# The unmodified sample uses \masm32 on the current drive.
 $sdk = Join-Path ([IO.Path]::GetPathRoot($root)) 'masm32'
 $downloads = Join-Path $root '.build/downloads/masm32'
 $archive = Join-Path $downloads 'm32v9r.zip'
@@ -22,16 +22,19 @@ Expand-Archive -LiteralPath $archive -DestinationPath $downloads -Force
 # without running the GUI installer. Its PE trailer produces a harmless warning.
 Run '7z' @('x', '-t7z', '-y', "$downloads\install.exe", "-o$sdk")
 
-# Replay the library-building part of installation, with checked exit codes and
-# no pause/test GUI. Only these Windows import libraries are used by Project1.inc.
-Push-Location "$sdk\include"
-try {
-    foreach ($name in @('gdi32', 'user32', 'kernel32', 'comctl32', 'comdlg32', 'shell32', 'oleaut32')) {
-        Run '.\inc2l.exe' @("$name.inc")
-        if (!(Test-Path "$name.lib")) { throw "MASM32 did not generate $name.lib" }
-        Copy-Item "$name.lib" "$sdk\lib\"
-    }
-} finally { Pop-Location }
+# MASM32 v9's inc2l.exe crashes with 0xC0000005 on Windows Server 2022.
+# Use the installed Windows SDK's x86 import libraries for the same system APIs.
+$vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+$vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+if (!$vs) { throw 'Visual Studio C++ tools not found' }
+Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=x86 -host_arch=x64'
+if (!$env:WindowsSdkDir -or !$env:WindowsSDKVersion) { throw 'Windows SDK not found' }
+$windowsLib = Join-Path $env:WindowsSdkDir "Lib\$env:WindowsSDKVersion\um\x86"
+foreach ($name in @('gdi32', 'user32', 'kernel32', 'comctl32', 'comdlg32', 'shell32', 'oleaut32')) {
+    Copy-Item "$windowsLib\$name.lib" "$sdk\lib\"
+}
+# Build the MASM32 runtime from its original sources, without the batch file's pause.
 Push-Location "$sdk\m32lib"
 try {
     Get-ChildItem '*.asm' | Sort-Object Name | ForEach-Object { $_.Name } |
