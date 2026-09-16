@@ -16,9 +16,11 @@ case "${1:?Expected linux, gcc, fpc, xcode-markers, or xcode-licensing}" in
     done
     # Equivalent to MinGW/makeit.bat with the installed compiler prefix.
     cd "$work/Examples/Code Markers/MinGW"
-    mkdir -p "$out/mingw-x86"
+    mkdir -p "$out/mingw-x86" "$root/.build/mingw-includes"
+    # Windows ignores case; Linux needs an external alias for #include "Resource.h".
+    ln -s "$PWD/resource.h" "$root/.build/mingw-includes/Resource.h"
     i686-w64-mingw32-windres Resource.rc -O coff -o Resource.o
-    i686-w64-mingw32-g++ -mwindows Project1.cpp Resource.o VMProtectSDK32.a \
+    i686-w64-mingw32-g++ -I "$root/.build/mingw-includes" -mwindows Project1.cpp Resource.o VMProtectSDK32.a \
       -o "$out/mingw-x86/Project1.exe" -Os -static-libgcc -static-libstdc++ \
       "-Wl,-Map=$out/mingw-x86/Project1.map"
     cp VMProtectSDK32.dll "$out/mingw-x86/"

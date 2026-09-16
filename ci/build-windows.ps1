@@ -55,7 +55,8 @@ if ($Kind -eq 'native') {
     Push-Location "$work\Examples\KeyGen\DLL\Sources"
     try {
         Run 'rc' @('/nologo', "/fo$dest\KeyGen.res", 'KeyGen.rc')
-        Run 'cl' @('/nologo', '/O2', '/MT', '/EHsc', '/LD', '/DWIN32', '/DNDEBUG', '/D_WINDOWS',
+        # Old STL headers supplied <string> transitively; inject it via /FI on modern MSVC.
+        Run 'cl' @('/nologo', '/O2', '/MT', '/EHsc', '/FIstring', '/LD', '/DWIN32', '/DNDEBUG', '/D_WINDOWS',
             '/D_USRDLL', '/DKEYGEN_EXPORTS', '/DUNICODE', '/D_UNICODE', '/D_CRT_SECURE_NO_WARNINGS',
             'KeyGen.cpp', 'b64.cpp', 'sha-1.cpp', 'sshbn.cpp', 'stdafx.cpp', "$dest\KeyGen.res",
             "/Fe$dest\KeyGen$bits.dll", '/link', '/DEF:KeyGen.def', "/IMPLIB:$dest\KeyGen$bits.lib")
@@ -82,10 +83,11 @@ if ($Kind -eq 'native') {
         $dest = Directory "$out\$($example.Name)"
         $refs = "$packages\Microsoft.NETFramework.ReferenceAssemblies.$($example.Framework).1.0.3\build\"
         $project = "$work\Examples\$($example.Project)"
+        $referencePath = if ($example.Name -eq 'keygen-net') { $dest } else { "$work\Lib\Windows\Net" }
         # ReferencePath supplies missing legacy HintPaths without editing the csproj.
         Run 'msbuild' @($project, '/m', '/t:Build', '/p:Configuration=Release',
             "/p:TargetFrameworkRootPath=$refs", "/p:OutDir=$dest\",
-            "/p:ReferencePath=$work\Lib\Windows\Net%3B$dest",
+            "/p:ReferencePath=$referencePath",
             '/p:GenerateResourceMSBuildRuntime=CurrentRuntime', '/p:GenerateResourceMSBuildArchitecture=CurrentArchitecture')
     }
 } elseif ($Kind -eq 'pascal') {

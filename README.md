@@ -58,6 +58,8 @@ Windows 需要允许创建符号链接（开发者模式或管理员权限）；
 GUI 示例只验证编译和链接，不自动点击窗口。KeyGen 调用示例使用原有空产品参数，因此运行输出错误码是示例的预期行为，不能视为实际签发验证。
 这里构建的是未保护示例，不执行 VMProtect 加壳，也不证明授权服务或保护后的程序行为。
 
+兼容参数也仅限 CI：MinGW 在外部 include 目录建立 `Resource.h` → 原 `resource.h` 的别名，以适配 Linux 大小写规则；KeyGen DLL 用 MSVC `/FIstring` 补充旧 STL 曾间接包含的标准头文件。
+
 ### 未纳入标准 runner 的项目
 
 这些文件完整保留，未用跳过或 `continue-on-error` 冒充构建通过：
