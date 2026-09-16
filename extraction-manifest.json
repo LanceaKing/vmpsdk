@@ -750,17 +750,32 @@
     "Examples/Licensing/Xcode/main.m": {
       "sha256": "1ed2881b24fce2892811bda260f5b4152fa2a723a83da149359270d61eb28263"
     },
+    "Examples/Scripts/Delphi Resources/Project1.exe": {
+      "sha256": "a14c1e75ce36821ecd80e4525c888c9d58e80a23a8a5f6ebe9923f6a33d93e7d"
+    },
     "Examples/Scripts/Delphi Resources/Project1.exe.vmp": {
       "sha256": "52fc0fc9ca0e0656d4e42679ca3000a5355c93263feec7ed42728e4fbf3841b6"
+    },
+    "Examples/Scripts/Environment Variables/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde"
     },
     "Examples/Scripts/Environment Variables/Project1.exe.vmp": {
       "sha256": "4ccaf3279c3877e892d92e4bb445fc0aea379813c941a6b2d33a84272ce76eee"
     },
+    "Examples/Scripts/External DLL/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde"
+    },
     "Examples/Scripts/External DLL/Project1.exe.vmp": {
       "sha256": "a7d574bfbc558160aeaa163b0614e6ff4999a822ecb1a0aa640e8dafa6518686"
     },
+    "Examples/Scripts/Random Section Names/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde"
+    },
     "Examples/Scripts/Random Section Names/Project1.exe.vmp": {
       "sha256": "85aed524596107b858af4f62456198cbf8342a02ed472721f7f0f1566f04adf5"
+    },
+    "Examples/Scripts/Script Events/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde"
     },
     "Examples/Scripts/Script Events/Project1.exe.vmp": {
       "sha256": "c417b7afe50d6b6f10260fca070be34bf32003aef75b49e9aa3e480ab135b1d3"
@@ -917,26 +932,6 @@
     "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/MacOS/VMProtect Licensing Test": {
       "sha256": "de496be3920cc394099a2ec00a8aa195a1f016345cd0c48020fdaea2e2630a65",
       "reason": "compiled Mach-O executable"
-    },
-    "Examples/Scripts/Delphi Resources/Project1.exe": {
-      "sha256": "a14c1e75ce36821ecd80e4525c888c9d58e80a23a8a5f6ebe9923f6a33d93e7d",
-      "reason": "compiled Windows executable or example driver"
-    },
-    "Examples/Scripts/Environment Variables/Project1.exe": {
-      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
-      "reason": "compiled Windows executable or example driver"
-    },
-    "Examples/Scripts/External DLL/Project1.exe": {
-      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
-      "reason": "compiled Windows executable or example driver"
-    },
-    "Examples/Scripts/Random Section Names/Project1.exe": {
-      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
-      "reason": "compiled Windows executable or example driver"
-    },
-    "Examples/Scripts/Script Events/Project1.exe": {
-      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
-      "reason": "compiled Windows executable or example driver"
     }
   }
 }

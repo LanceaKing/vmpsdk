@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the archive manifest, SDK links, and the absence of shipped executables."""
+"""Verify original bytes, SDK links, and the configured executable removals."""
 import argparse
 import hashlib
 import json

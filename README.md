@@ -6,7 +6,7 @@
 
 - 原始 ZIP SHA-256：`4b55d8c61ab7f3f5fb8bb75f32fb1eb35f8dd6441dcf0d9337357322e7f3beb9`。
 - `Include/`、`Lib/` 以及保留的示例源码、工程、资源和 `makeit.*` 均保留原始字节。
-- 移除 Examples 内的 26 个预编译程序（含示例驱动）和 1 个程序别名；保留 `.vmp`、`.map`、`.res`、应用资源与依赖库。
+- 移除 Examples 内的 21 个预编译程序（含示例驱动）和 1 个程序别名；保留 `Examples/Scripts/` 下全部 5 个 executable，以及 `.vmp`、`.map`、`.res`、应用资源与依赖库。
 - 48 个重复 SDK 文件改为指向 `Include/` 或 `Lib/` 的相对符号链接；增加 2 个 GCC Linux SDK 链接，使原始 `makeit.sh` 能找到库。
 - 替换链接前逐字节匹配原件。因此 BCB 目录中原有的 COFF import library 仍指向相同的 COFF 文件，不擅自换成 OMF。
 
@@ -67,7 +67,7 @@ GUI 示例只验证编译和链接，不自动点击窗口。KeyGen 调用示例
 - MASM：原 `makeit.bat` 和 `Project1.inc` 依赖 `\MASM32\` 的 SDK、宏与库；Visual Studio 自带的 `ml.exe` 不足以替代。
 - VB6、Delphi、BCB：需要相应编译器、VCL/运行库及许可环境。
 - Licensing/DDK：原 `make.bat` 依赖 `C:\WinDDK\7600.16385.1` 和 XP 构建环境。
-- Examples/Scripts：只提供 `.vmp` 配置及原预编译程序，没有相应程序源码。
+- Examples/Scripts：保留原预编译程序及 `.vmp` 配置；没有相应程序源码，无法重新编译。
 - KeyGen/PHP：解释执行示例，无编译目标。
 
 ## 本地构建与验证

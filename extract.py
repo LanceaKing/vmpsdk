@@ -41,6 +41,9 @@ def macho_executable(data):
 def executable_reason(name, data):
     if not name.startswith('Examples/'):
         return None
+    # Script demonstrations ship executables without the corresponding sources.
+    if name.startswith('Examples/Scripts/'):
+        return None
     if name.lower().endswith(('.exe', '.sys')):
         return 'compiled Windows executable or example driver'
     if macho_executable(data):
