@@ -1,10 +1,11 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('native', 'masm', 'managed', 'pascal')][string]$Kind,
+    [ValidateSet('native', 'masm', 'vb6', 'managed', 'pascal')][string]$Kind,
     [ValidateSet('x86', 'x64')][string]$Arch = 'x86'
 )
 $ErrorActionPreference = 'Stop'
 if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports only x86' }
+if ($Kind -eq 'vb6' -and $Arch -ne 'x86') { throw 'The VB6 examples support only x86' }
 $root = Split-Path $PSScriptRoot -Parent
 $work = Join-Path $root '.build/work'
 $out = Join-Path $root '.build/artifacts'
@@ -82,6 +83,45 @@ if ($Kind -eq 'native') {
         if (!(Test-Path "$dest\Project1.exe")) { throw 'Missing MASM executable' }
         Copy-Item 'VMProtectSDK32.dll' $dest
     } finally { Pop-Location }
+} elseif ($Kind -eq 'vb6') {
+    $compiler = "$root\.build\vb6\Vb6.exe"
+    if (!(Test-Path $compiler)) { throw 'VB6 compiler missing; run ci/install-vb6.ps1 first' }
+    $logs = Directory "$root\.build\logs\vb6"
+    foreach ($example in @(
+        @{Folder='Code Markers'; Name='Project1'; Artifact='markers-vb6-x86'},
+        @{Folder='Licensing'; Name='TestApp'; Artifact='licensing-vb6-x86'}
+    )) {
+        $projectDir = "$work\Examples\$($example.Folder)\VB6"
+        $dest = Directory "$out\$($example.Artifact)"
+        $exe = "$dest\$($example.Name).exe"
+        $log = "$logs\$($example.Name).log"
+        # A stale executable must never turn a failed compilation into a pass.
+        if (Test-Path $exe) { throw "Refusing to overwrite existing VB6 executable: $exe" }
+        if (Test-Path $log) { Remove-Item $log }
+        $process = Start-Process $compiler -WorkingDirectory $projectDir -PassThru -ArgumentList @(
+            '/make', "`"$projectDir\$($example.Name).vbp`"",
+            '/out', "`"$log`"", '/outdir', "`"$dest`""
+        )
+        try {
+            if (!$process.WaitForExit(120000)) {
+                $process.Kill($true)
+                $process.WaitForExit()
+                throw "VB6 compilation timed out: $($example.Name)"
+            }
+            if ($process.ExitCode -ne 0) { throw "VB6 exited with $($process.ExitCode): $($example.Name)" }
+            # VB6 can return zero after a build error. Require the success log and EXE.
+            if (!(Test-Path $log) -or (Get-Content $log -Raw) -notmatch 'Build of .* succeeded') {
+                throw "VB6 did not report a successful build: $($example.Name)"
+            }
+            if (!(Test-Path $exe) -or (Get-Item $exe).Length -eq 0) {
+                throw "Missing VB6 executable: $exe"
+            }
+            Copy-Item "$work\Lib\Windows\VMProtectSDK32.dll" $dest
+        } finally {
+            if (Test-Path $log) { Get-Content $log | Write-Host }
+            $process.Dispose()
+        }
+    }
 } elseif ($Kind -eq 'managed') {
     $packages = Directory "$root\.build\packages"
     foreach ($framework in @('net20', 'net40')) {

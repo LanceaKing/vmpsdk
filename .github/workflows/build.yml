@@ -105,6 +105,7 @@ jobs:
           - {kind: native, arch: x86}
           - {kind: native, arch: x64}
           - {kind: masm, arch: x86}
+          - {kind: vb6, arch: x86}
           - {kind: managed, arch: x86}
           - {kind: pascal, arch: x86}
     steps:
@@ -127,6 +128,15 @@ jobs:
         with:
           path: .build/packages
           key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-net-reference-assemblies-v1-${{ hashFiles('ci/build-windows.ps1') }}
+      - name: Cache VB6 toolchain download
+        if: matrix.kind == 'vb6'
+        uses: actions/cache@v6
+        with:
+          path: .build/downloads/vb6/vb6-portable.zip
+          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-vb6-${{ hashFiles('ci/install-vb6.ps1') }}
+      - name: Prepare VB6 compiler
+        if: matrix.kind == 'vb6'
+        run: ./ci/install-vb6.ps1
       - name: Cache Lazarus and Free Pascal toolchain
         if: matrix.kind == 'pascal'
         id: lazarus-cache
@@ -152,6 +162,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python ci/verify.py --root .build/work --build-tree
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload VB6 compiler logs
+        if: always() && matrix.kind == 'vb6'
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-vb6-x86-logs
+          path: .build/logs/vb6/
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v7
         with:
           name: windows-${{ matrix.kind }}-${{ matrix.arch }}
