@@ -16,6 +16,8 @@ class Project:
 
 
 PROJECTS = {
+    'windows-x86-ddk-licensing': Project(
+        'licensing-ddk-x86', ('TestApp.sys', 'VMProtectDDK32.sys', 'TestApp.map', 'TestApp.pdb')),
     'windows-x86-mingw-markers': Project(
         'mingw-x86', ('Project1.exe', 'VMProtectSDK32.dll'), ('Project1.map',)),
     'windows-x86-masm-markers': Project(

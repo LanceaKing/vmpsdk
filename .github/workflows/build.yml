@@ -112,6 +112,7 @@ jobs:
           - {kind: vb6, arch: x86}
           - {kind: bcb, arch: x86}
           - {kind: delphi, arch: x86}
+          - {kind: ddk, arch: x86}
           - {kind: managed, arch: x86}
           - {kind: pascal, arch: x86}
     steps:
@@ -119,6 +120,15 @@ jobs:
         run: git config --global core.symlinks true
       - uses: actions/checkout@v7
       - run: python ci/verify.py
+      - name: Cache WDK 7.1 installation media
+        if: matrix.kind == 'ddk'
+        uses: actions/cache@v6
+        with:
+          path: .build/downloads/wdk-7.1/GRMWDK_EN_7600_1.ISO
+          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-wdk-7.1-${{ hashFiles('ci/install-wdk71.ps1') }}
+      - name: Install WDK 7.1 build environment
+        if: matrix.kind == 'ddk'
+        run: ./ci/install-wdk71.ps1
       - name: Cache MASM32 SDK download
         if: matrix.kind == 'masm'
         uses: actions/cache@v6
@@ -198,6 +208,10 @@ jobs:
         if: matrix.kind == 'native'
         with:
           name: windows-${{ matrix.arch }}-msvc-keygen-usage
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'ddk'
+        with:
+          name: windows-x86-ddk-licensing
       - uses: ./.github/actions/package-project
         if: matrix.kind == 'masm'
         with:
