@@ -48,8 +48,6 @@
 3. 对摘要中的 ISO 地址发起 HTTP HEAD 请求。2026-09-16 当时的响应为 `HTTP/2 200`，`Content-Length: 5173313536`，并声明 `Accept-Ranges: bytes`。
 4. 再单独请求开头 1 MiB，实际收到 `HTTP/2 206` 和 `Content-Range: bytes 0-1048575/5173313536`，确认该次分块读取有效。远程目录读取过程见下一节。
 
-补录本文时重新打开了上述来源页面，确认其 `RAD Studio XE5 with updates` 条目仍明确列出该 ISO 链接，以及在线安装器 `delphi_xe5_upd2_esd.exe` 的链接。这个 ISO 地址直接来自搜索结果；后文组件下载基址的主机名替换是另一项操作。
-
 ### 3.2 读取 ISO 目录并定位安装器
 
 采用的官方介质是：[Delphi / C++Builder XE5 Update 2 Windows ISO](https://altd.embarcadero.com/download/radstudio/xe5/delphicbuilder_xe5_upd2_win.iso)。
