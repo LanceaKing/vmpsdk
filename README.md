@@ -78,7 +78,7 @@ VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb
 此 MSI 默认要求已安装 VB6 SP6，否则返回 `1603`。portable 没有安装记录，因此脚本显式传入 `VB6PRODUCTDIR`、`VB6COMMONDIR` 和 `VB6SP6REGKEY="#6"`，跳过其 SP6 安装记录检查；不写入虚假的系统 SP6 注册项。更新包仅安装控件，编译器仍为 `6.00.8176`。
 即使没有数据库绑定，VB6 编译带 `TextBox` / `Label` 的窗体仍需要这个组件；缺失时 VB6 6.00.8176 会以 `0xC0000005` 崩溃。注册代码直接传给 32 位 PowerShell 执行，不生成额外脚本文件。
 两个工程按原始编译选项构建，不修改 `.vbp`、窗体或 SDK。每个工程限时 120 秒，同时检查进程退出码、成功日志和非空 EXE；缺少工具链或编译失败会使 job 失败。
-`windows-vb6-x86` artifact 包含 `markers-vb6-x86/Project1.exe`、`licensing-vb6-x86/TestApp.exe` 及各自的 `VMProtectSDK32.dll`。MSI 安装日志 `runtime-install.log` 和编译日志单独上传为 `windows-vb6-x86-logs`，失败时也保留。
+`windows-vb6-x86` artifact 包含 `markers-vb6-x86/Project1.exe`、`licensing-vb6-x86/TestApp.exe` 及各自的 `VMProtectSDK32.dll`。仅在 VB6 job 失败时，将 MSI 安装日志 `runtime-install.log` 和编译日志上传为 `windows-vb6-x86-logs`。
 
 ### 未纳入标准 runner 的项目
 
