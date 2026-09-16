@@ -13,19 +13,10 @@ if (!(Test-Path $archive)) {
 if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne $sha256) {
     throw 'VB6 archive SHA-256 mismatch'
 }
+# Preserve the whole package so implicit compiler dependencies are not omitted.
+# Only remove the archive's outer directory; do not run its portable launcher.
 Expand-Archive -LiteralPath $archive -DestinationPath $downloads -Force
-$source = Join-Path $downloads "vb6-portable-$revision"
-New-Item -ItemType Directory -Path $sdk | Out-Null
-# Use the compiler directly, without the portable launcher or registry installer.
-# Do not install the bundled old MSVCRT over the Windows runtime.
-foreach ($name in @(
-    'Vb6.exe', 'Vb6.olb', 'Vb6ext.olb', 'Vb6debug.dll', 'Vb6ide.dll',
-    'Vba6.dll', 'Vbaexe6.lib', 'C2.exe', 'Link.exe', 'Mspdb60.dll',
-    'Mso97rt.dll', 'Mrt7enu.dll', 'ENTDAT.DLL', 'PRODAT.DLL', 'LRNDAT.DLL',
-    'Dao350.dll'
-)) {
-    Copy-Item (Join-Path $source $name) $sdk
-}
+Move-Item (Join-Path $downloads "vb6-portable-$revision") $sdk
 # VBA6 exports a type library, not DllRegisterServer. Register the type libraries
 # from a 32-bit process, as the original VB6 installer does.
 $registration = Join-Path $sdk 'register.ps1'
