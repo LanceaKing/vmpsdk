@@ -44,8 +44,20 @@ foreach ($name in @('Vba6.dll', 'Vb6.olb', 'Vb6ext.olb')) {
     [VB6TypeLibrary]::LoadTypeLibEx((Join-Path $PSScriptRoot $name), 1, [ref]$library)
     [void][Runtime.InteropServices.Marshal]::Release($library)
 }
+# Core setup records 776-778 from VB98ENT.STF. Without these installation
+# records VB6 starts as Working Model Edition and cannot run /make.
+# https://github.com/gdsestimating/vb6-install-recipe/blob/70ef8f17ce744b9affadf044b3e2e68a7846570f/vb98ent_minimal.stf#L726-L728
+$coreLicenses = @{
+    '6000720D-F342-11D1-AF65-00A0C90DCA10' = 'kefeflhlhlgenelerfleheietfmflelljeqf'
+    '74872840-703A-11d1-A3AF-00A0C90F26FA' = 'mninuglgknogtgjnthmnggjgsmrmgniglish'
+    '74872841-703A-11d1-A3AF-00A0C90F26FA' = 'klglsejeilmereglrfkleeheqkpkelgejgqf'
+}
+foreach ($id in $coreLicenses.Keys) {
+    $key = [Microsoft.Win32.Registry]::ClassesRoot.CreateSubKey("Licenses\$id")
+    try { $key.SetValue('', $coreLicenses[$id]) } finally { $key.Dispose() }
+}
 '@ | Set-Content -Encoding ascii $registration
 $process = Start-Process "$env:SystemRoot\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" `
     -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$registration`"" -Wait -PassThru
-if ($process.ExitCode -ne 0) { throw "VB6 type library registration exited with $($process.ExitCode)" }
+if ($process.ExitCode -ne 0) { throw "VB6 registration exited with $($process.ExitCode)" }
 Write-Host "VB6 $((Get-Item "$sdk\Vb6.exe").VersionInfo.FileVersion) ready: $sdk"

@@ -73,6 +73,7 @@ SDK 放在仓库所在盘的 `\masm32`（已有目录则拒绝覆盖），满足
 
 VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb6-portable/tree/01ecb4d13e5ec00c8986dfec86dce46f923a4f3b)，固定 commit `01ecb4d13e5ec00c8986dfec86dce46f923a4f3b`，ZIP SHA-256 为 `7d58685bd0b6c6313a5c95200e9250d15288aae47bd124189dcf6f98fd9c9576`。
 [`install-vb6.ps1`](ci/install-vb6.ps1) 每次校验下载或缓存的 ZIP，仅提取编译器及所需依赖到 `.build/vb6/`，用 32 位进程注册 VBA6 / VB6 类型库；不运行包内便携启动器或注册表安装器，不替换系统 DLL。工具链的版权及许可仍归原权利人所有。
+脚本还重放 [VB98ENT.STF 的 Core 注册项](https://github.com/gdsestimating/vb6-install-recipe/blob/70ef8f17ce744b9affadf044b3e2e68a7846570f/vb98ent_minimal.stf#L726-L728)；只解压文件会使编译器报 `No make available in the Working Model Edition`。
 两个工程按原始编译选项构建，不修改 `.vbp`、窗体或 SDK。每个工程限时 120 秒，同时检查进程退出码、成功日志和非空 EXE；缺少工具链或编译失败会使 job 失败。
 `windows-vb6-x86` artifact 包含 `markers-vb6-x86/Project1.exe`、`licensing-vb6-x86/TestApp.exe` 及各自的 `VMProtectSDK32.dll`。编译日志单独上传为 `windows-vb6-x86-logs`，失败时也保留。
 
