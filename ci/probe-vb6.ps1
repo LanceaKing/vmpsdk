@@ -50,6 +50,14 @@ $p = Start-Process $compiler -WorkingDirectory $projectDir -PassThru -ArgumentLi
 if (!$p.WaitForExit(15000)) { $p.Kill($true); $p.WaitForExit() }
 Write-Host "[DEBUG-vb6] markers-alias: exit $($p.ExitCode); EXE $(Test-Path "$probe/Project1.exe")"
 if (Test-Path "$probe/markers-alias.log") { Get-Content "$probe/markers-alias.log" }
+$p = Start-Process "$env:SystemRoot/SysWOW64/regsvr32.exe" -ArgumentList '/s', 'msvbvm60.dll' -Wait -PassThru
+Write-Host "[DEBUG-vb6] Runtime registration: exit $($p.ExitCode)"
+$p = Start-Process $compiler -WorkingDirectory $projectDir -PassThru -ArgumentList (
+    '/make Project1.vbp /out "{0}" /outdir "{1}"' -f "$probe/markers-runtime.log", $probe
+)
+if (!$p.WaitForExit(15000)) { $p.Kill($true); $p.WaitForExit() }
+Write-Host "[DEBUG-vb6] markers-runtime: exit $($p.ExitCode); EXE $(Test-Path "$probe/Project1.exe")"
+if (Test-Path "$probe/markers-runtime.log") { Get-Content "$probe/markers-runtime.log" }
 Start-Sleep 3
 Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$start} -ErrorAction SilentlyContinue |
     Where-Object Message -Match 'vb6|vba6|c2.exe' |
