@@ -75,6 +75,7 @@ VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb
 [`install-vb6.ps1`](ci/install-vb6.ps1) 每次校验下载或缓存的 ZIP，将包内全部文件解压到 `.build/vb6/`（去掉 ZIP 最外层目录），用 32 位进程注册 VBA6 / VB6 类型库；直接调用 `VB6.exe`，不运行包内便携启动器或注册表安装器。工具链的版权及许可仍归原权利人所有。
 脚本还重放 [VB98ENT.STF 的 Core 注册项](https://github.com/gdsestimating/vb6-install-recipe/blob/70ef8f17ce744b9affadf044b3e2e68a7846570f/vb98ent_minimal.stf#L726-L728)；只解压文件会使编译器报 `No make available in the Working Model Edition`。
 脚本通过 PowerShell 调用 `msiexec /i ... /qn /norestart ADDLOCAL=ALL`，静默安装完整的微软官方 [KB2708437 更新包](https://www.microsoft.com/en-us/download/details.aspx?id=30505)，由 Windows Installer 安装并注册组件，包括 portable 包缺少的 `MSSTDFMT.DLL`。MSI 的 SHA-256 固定为 `350602b2e084b39c97d1394c8594b18e41ef622315d4a9635c5e8ea6aa977b5e`。安装接受退出码 `0` 和 `3010`，后者会提示需要重启，但不自动重启 runner。
+此 MSI 默认要求已安装 VB6 SP6，否则返回 `1603`。portable 没有安装记录，因此脚本显式传入 `VB6PRODUCTDIR`、`VB6COMMONDIR` 和 `VB6SP6REGKEY="#6"`，跳过其 SP6 安装记录检查；不写入虚假的系统 SP6 注册项。更新包仅安装控件，编译器仍为 `6.00.8176`。
 即使没有数据库绑定，VB6 编译带 `TextBox` / `Label` 的窗体仍需要这个组件；缺失时 VB6 6.00.8176 会以 `0xC0000005` 崩溃。注册代码直接传给 32 位 PowerShell 执行，不生成额外脚本文件。
 两个工程按原始编译选项构建，不修改 `.vbp`、窗体或 SDK。每个工程限时 120 秒，同时检查进程退出码、成功日志和非空 EXE；缺少工具链或编译失败会使 job 失败。
 `windows-vb6-x86` artifact 包含 `markers-vb6-x86/Project1.exe`、`licensing-vb6-x86/TestApp.exe` 及各自的 `VMProtectSDK32.dll`。MSI 安装日志 `runtime-install.log` 和编译日志单独上传为 `windows-vb6-x86-logs`，失败时也保留。

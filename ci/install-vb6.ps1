@@ -30,7 +30,12 @@ if ((Get-FileHash $runtime -Algorithm SHA256).Hash -ne '350602b2e084b39c97d1394c
 $logs = Join-Path $root '.build/logs/vb6'
 New-Item -ItemType Directory -Force -Path $logs | Out-Null
 $installLog = Join-Path $logs 'runtime-install.log'
-$arguments = '/i "{0}" /qn /norestart ADDLOCAL=ALL /L*v "{1}"' -f $runtime, $installLog
+# The MSI requires VB6PRODUCTDIR and VB6SP6REGKEY="#6" in LaunchCondition.
+# Supply these for this portable CI toolchain without fabricating an installed
+# SP6 registry entry. This installs the controls; it does not upgrade VB6.exe.
+# VB6COMMONDIR must end in a slash for the MSI's Tools\VB path concatenation;
+# double that trailing backslash so it does not escape the closing quote.
+$arguments = '/i "{0}" /qn /norestart ADDLOCAL=ALL VB6PRODUCTDIR="{1}" VB6COMMONDIR="{1}\Common\\" VB6SP6REGKEY="#6" /L*v "{2}"' -f $runtime, $sdk, $installLog
 $process = Start-Process "$env:SystemRoot\System32\msiexec.exe" -ArgumentList $arguments -Wait -PassThru
 try {
     if ($process.ExitCode -notin @(0, 3010)) {
