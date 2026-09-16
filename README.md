@@ -89,6 +89,7 @@ VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb
 VB6 分别上传 `windows-x86-vb6-markers.zip` 和 `windows-x86-vb6-licensing.zip`。根目录包含各自的 `Project1.exe` 或 `TestApp.exe`，以及 `VMProtectSDK32.dll`。
 
 BCB 和 Delphi 共用 Embarcadero 官方 RAD Studio XE5 Update 2 的 [Win32 组件包](https://altd.embarcadero.com/release/radstudio/12.0/DB629168-0140-4C2D-9E68-79614F3D3B4E/bcbwin32.7zip)。
+完整的搜寻、下载地址来源、密码解码、组件定位、解包映射和验证过程见 [RAD Studio XE5 工具链复现记录](docs/radstudio-xe5-toolchain-discovery.md)。
 [`install-radstudio-xe5.ps1`](ci/install-radstudio-xe5.ps1) 下载清单中的全部 10 个原始组件，合计约 132 MiB，逐包校验长度和 SHA-256，使用 runner 自带的 7-Zip 解包到 `.build/radstudio-xe5/`。缓存命中仍执行摘要校验。
 [`radstudio-xe5-toolchain.json`](ci/radstudio-xe5-toolchain.json) 记录固定版本的下载地址、摘要、归档密码和目录映射；密码与目录映射来自官方 [XE5 Update 2 离线介质](https://altd.embarcadero.com/download/radstudio/xe5/delphicbuilder_xe5_upd2_win.iso) 中的 `Install/Setup.exe`，其 SHA-256 为 `300000b70e29b5b180b449331a6a72d2d90999ed2e3d9e9b8895acef67e1fb4b`。
 完整离线介质为 4.82 GiB；CI 仅准备 Win32 命令行工具、头文件和库，不安装 IDE，不修改工具二进制。工具链版权及许可仍归 Embarcadero 所有。
