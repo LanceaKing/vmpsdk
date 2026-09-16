@@ -110,6 +110,7 @@ jobs:
           - {kind: native, arch: x64}
           - {kind: masm, arch: x86}
           - {kind: vb6, arch: x86}
+          - {kind: bcb, arch: x86}
           - {kind: delphi, arch: x86}
           - {kind: managed, arch: x86}
           - {kind: pascal, arch: x86}
@@ -150,6 +151,15 @@ jobs:
         with:
           path: .build/downloads/delphi/*.rar
           key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-delphi7-${{ hashFiles('ci/install-delphi.ps1') }}
+      - name: Cache C++Builder toolchain downloads
+        if: matrix.kind == 'bcb'
+        uses: actions/cache@v6
+        with:
+          path: .build/downloads/bcb/*.7zip
+          key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-bcb-xe5u2-${{ hashFiles('ci/bcb-toolchain.json', 'ci/install-bcb.ps1') }}
+      - name: Prepare C++Builder compiler and VCL
+        if: matrix.kind == 'bcb'
+        run: ./ci/install-bcb.ps1
       - name: Install Delphi compiler and VCL
         if: matrix.kind == 'delphi'
         run: ./ci/install-delphi.ps1
@@ -171,6 +181,9 @@ jobs:
           if ($process.ExitCode -ne 0) { throw "Lazarus installer exited with $($process.ExitCode)" }
       - run: python ci/prepare.py
       - run: ./ci/build-windows.ps1 -Kind '${{ matrix.kind }}' -Arch '${{ matrix.arch }}'
+      - name: Verify BCB forms start and close
+        if: matrix.kind == 'bcb'
+        run: ./ci/smoke-bcb.ps1
       - name: Verify source and SDK bytes after building
         if: always()
         run: |
@@ -218,6 +231,14 @@ jobs:
         if: matrix.kind == 'delphi'
         with:
           name: windows-x86-delphi-keygen-usage
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'bcb'
+        with:
+          name: windows-x86-bcb-markers
+      - uses: ./.github/actions/package-project
+        if: matrix.kind == 'bcb'
+        with:
+          name: windows-x86-bcb-licensing
       - uses: ./.github/actions/package-project
         if: matrix.kind == 'managed'
         with:

@@ -89,6 +89,26 @@ class PackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'KeyGen32.dll'):
             self.build_zip('windows-x86-delphi-keygen-usage')
 
+    def test_bcb_projects_preserve_maps_and_exclude_generated_import_libraries(self):
+        for project, executable in (('markers', 'Project1'), ('licensing', 'TestApp')):
+            with self.subTest(project=project):
+                folder = f'{project}-bcb-x86'
+                expected = {f'{executable}.exe', f'{executable}.map', f'{executable}.tds',
+                            f'{executable}.exe.manifest', 'VMProtectSDK32.dll'}
+                for name in expected | {'Unit1.obj', 'VMProtectSDK32.lib', 'link.rsp', 'build.log'}:
+                    self.file(f'{folder}/{name}')
+                with zipfile.ZipFile(self.build_zip(f'windows-x86-bcb-{project}')) as archive:
+                    self.assertEqual(set(archive.namelist()), expected)
+
+    def test_bcb_requires_runtime_and_new_map(self):
+        folder = 'licensing-bcb-x86'
+        self.file(f'{folder}/TestApp.exe')
+        with self.assertRaisesRegex(ValueError, 'VMProtectSDK32.dll'):
+            self.build_zip('windows-x86-bcb-licensing')
+        self.file(f'{folder}/VMProtectSDK32.dll')
+        with self.assertRaisesRegex(ValueError, 'TestApp.map'):
+            self.build_zip('windows-x86-bcb-licensing')
+
     def test_net_any_architecture_and_separate_projects(self):
         for name in ['VMProtect.KeyGen.dll', 'VMProtect.KeyGen.pdb', 'Usage.exe', 'Usage.exe.config', 'Usage.pdb']:
             self.file(f'keygen-net/{name}')

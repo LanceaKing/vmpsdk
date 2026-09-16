@@ -24,6 +24,12 @@ PROJECTS = {
         'markers-vb6-x86', ('Project1.exe', 'VMProtectSDK32.dll')),
     'windows-x86-vb6-licensing': Project(
         'licensing-vb6-x86', ('TestApp.exe', 'VMProtectSDK32.dll')),
+    'windows-x86-bcb-markers': Project(
+        'markers-bcb-x86', ('Project1.exe', 'VMProtectSDK32.dll', 'Project1.map'),
+        ('Project1.tds', 'Project1.exe.manifest')),
+    'windows-x86-bcb-licensing': Project(
+        'licensing-bcb-x86', ('TestApp.exe', 'VMProtectSDK32.dll', 'TestApp.map'),
+        ('TestApp.tds', 'TestApp.exe.manifest')),
     'windows-x86-delphi-markers': Project(
         'markers-delphi-x86', ('Project1.exe', 'VMProtectSDK32.dll', 'Project1.map'),
         ('Project1.tds', 'Project1.exe.manifest')),

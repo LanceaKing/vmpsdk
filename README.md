@@ -48,7 +48,7 @@ ZIP 根目录直接包含该项目的程序和运行依赖；macOS `.app` 和 `.
 打包保留运行配置、manifest、映射文件、调试符号和导入库，排除构建中间文件。Unix 执行权限和符号链接保存在 ZIP 中。
 [`package.py`](ci/package.py) 定义每个项目的文件清单；上传使用 `archive: false`，下载后无需再解开一层压缩包。后续修改遵守 [`AGENTS.md`](AGENTS.md)。
 
-使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows MASM32 / VB6 / Delphi 工具链下载包、.NET 引用程序集和 Lazarus/FPC 安装目录。
+使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows MASM32 / VB6 / BCB / Delphi 工具链下载包、.NET 引用程序集和 Lazarus/FPC 安装目录。
 缓存键包含 runner 平台、架构及依赖版本或安装脚本摘要；APT 还包含解析后的安装计划摘要。依赖变化会生成新缓存。
 首次成功构建写入缓存，后续构建恢复缓存；Windows Lazarus/FPC 精确命中后跳过下载安装。示例程序每次重新编译，产物仍上传至 Artifacts。
 
@@ -63,12 +63,13 @@ ZIP 根目录直接包含该项目的程序和运行依赖；macOS `.app` 和 `.
 | Windows 2022 | MSVC Code Markers / Licensing，x64 | 原工程仅定义 Win32；直接编译同一组源文件和资源 |
 | Windows 2022 | MASM Code Markers，x86 | MASM32 v9 自带的 ML 6.14 / LINK 5.12，沿用原 `makeit.bat` 的汇编和链接参数 |
 | Windows 2022 | VB6 Code Markers / Licensing，x86 | VB6 6.00.8176，以 `/make` 编译原 `.vbp`，通过 `/outdir` 指定产物目录 |
+| Windows 2022 | BCB Code Markers / Licensing，x86 | C++Builder XE5 Update 2，直接编译原 C++ / DFM，静态链接 VCL 和 RTL，生成 EXE 和详细 MAP |
 | Windows 2022 | Delphi Code Markers / Licensing / KeyGen 调用示例，x86 | Delphi 7 的 `dcc32.exe` 直接编译原 `.dpr`，生成 EXE 和详细 MAP |
 | Windows 2022 | KeyGen DLL 和调用示例，x86 / x64 | 按旧 `.vcproj` 的源文件、资源与 `.def` 构建；原工程无需转换 |
 | Windows 2022 | .NET Code Markers / Licensing / KeyGen / Usage | 原 `.csproj`，NuGet reference assemblies 保留 v2.0 / v4.0 目标框架，命令行补齐引用路径 |
 | Windows 2022 | Free Pascal / Lazarus Code Markers，x86 | Lazarus 4.0 / FPC 3.2.2；FPC 沿用 `makeit.bat` 参数；Lazarus 使用原源文件及预编译 LCL units |
 
-GUI 示例只验证编译和链接，不自动点击窗口。KeyGen 调用示例使用原有空产品参数，因此运行输出错误码是示例的预期行为，不能视为实际签发验证。
+GUI 示例验证编译和链接；BCB 还在原生 Windows runner 上检查两个主窗口的标题及正常关闭，不测试按钮或授权流程。KeyGen 调用示例使用原有空产品参数，因此运行输出错误码是示例的预期行为，不能视为实际签发验证。
 这里构建的是未保护示例，不执行 VMProtect 加壳，也不证明授权服务或保护后的程序行为。
 
 兼容参数也仅限 CI：MinGW 在外部 include 目录建立 `Resource.h` → 原 `resource.h` 的别名，以适配 Linux 大小写规则；KeyGen DLL 用 MSVC `/FIstring` 补充旧 STL 曾间接包含的标准头文件。
@@ -93,11 +94,19 @@ Delphi 使用 SourceForge 上的第三方归档 [Delphi 7 Lite Full Edition 7.3.
 构建不转换 `.dof` / `.dproj`。Licensing 的原 `.dpr` 引用了缺失的 `TestApp.res`，CI 仅在构建副本生成空资源。新 EXE、MAP 和中间文件输出到独立目录，保留原有 `TestApp.map`。KeyGen 调用示例使用原包的 `KeyGen32.dll`，运行时检查空产品参数对应的 `Error: 2`。
 三个项目分别上传 `windows-x86-delphi-markers.zip`、`windows-x86-delphi-licensing.zip` 和 `windows-x86-delphi-keygen-usage.zip`；根目录包含各自的 EXE、MAP 和所需的 `VMProtectSDK32.dll` 或 `KeyGen32.dll`。
 
+BCB 使用 Embarcadero 官方 XE5 Update 2 的 [Win32 组件包](https://altd.embarcadero.com/release/radstudio/12.0/DB629168-0140-4C2D-9E68-79614F3D3B4E/bcbwin32.7zip)。
+[`install-bcb.ps1`](ci/install-bcb.ps1) 下载约 97 MiB 的原始组件，逐包校验长度和 SHA-256，使用 runner 自带的 7-Zip 解包到 `.build/bcb/`。缓存命中仍执行摘要校验。
+[`bcb-toolchain.json`](ci/bcb-toolchain.json) 记录固定版本的下载地址、摘要、归档密码和目录映射；密码与目录映射来自官方 [XE5 Update 2 离线介质](https://altd.embarcadero.com/download/radstudio/xe5/delphicbuilder_xe5_upd2_win.iso) 中的 `Install/Setup.exe`，其 SHA-256 为 `300000b70e29b5b180b449331a6a72d2d90999ed2e3d9e9b8895acef67e1fb4b`。
+完整离线介质为 4.82 GiB；CI 仅准备 Win32 命令行工具、头文件和库，不安装 IDE，不修改工具二进制。工具链版权及许可仍归 Embarcadero 所有。
+Code Markers 的工程来自 BCB6，Licensing 使用 XE5 的 Unicode VCL。两者统一使用 `bcc32` 6.70 / `ilink32` 6.51 编译原始源码，不升级 `.bpr` / `.cbproj`。链接原 `.res`，保留图标、版本信息和嵌入的应用 manifest；Licensing 沿用 Unicode 入口点，通过命令行补充 `Include/C` 搜索路径。
+原包的 `VMProtectSDK32.lib` 是 COFF 格式；CI 用官方 `implib.exe` 从原 DLL 在独立中间目录生成 OMF 库，并保持原 COFF 文件及链接不变。DFM 仅复制到中间目录供链接器读取。
+VCL 和 C/C++ RTL 静态链接，使用兼容 Delphi 异常的 `cp32mt.lib`；使用 `cw32mt.lib` 会导致 Licensing 启动时异常终止。每个项目分别上传 `windows-x86-bcb-markers.zip` 或 `windows-x86-bcb-licensing.zip`，根目录包含各自的 EXE、MAP、TDS 和 `VMProtectSDK32.dll`。生成的导入库、OBJ、DFM 副本和响应文件均不打包。
+[`smoke-bcb.ps1`](ci/smoke-bcb.ps1) 从产物目录启动程序，要求 15 秒内出现原 DFM 指定标题的主窗口，然后正常关闭并检查退出码；仅清理本轮启动的进程。
+
 ### 未纳入标准 runner 的项目
 
 这些文件完整保留，未用跳过或 `continue-on-error` 冒充构建通过：
 
-- BCB：需要相应编译器、VCL/运行库及许可环境。
 - Licensing/DDK：原 `make.bat` 依赖 `C:\WinDDK\7600.16385.1` 和 XP 构建环境。
 - Examples/Scripts：保留原预编译程序及 `.vmp` 配置；没有相应程序源码，无法重新编译。
 - KeyGen/PHP：解释执行示例，无编译目标。
@@ -114,9 +123,10 @@ python3 ci/package.py linux-x64-gcc-markers
 ```
 
 macOS 使用 `gcc`、`fpc`、`xcode-markers` 或 `xcode-licensing` 参数。需要 Intel Mac；本包的 Mach-O SDK 只有 i386/x86_64，没有 ARM64。
-Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `masm` / `vb6` / `delphi` / `managed` / `pascal`；环境准备见 workflow。
+Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `masm` / `vb6` / `bcb` / `delphi` / `managed` / `pascal`；环境准备见 workflow。
 MASM 只支持 x86：准备 7-Zip 后运行 `./ci/install-masm32.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind masm -Arch x86`。
 VB6 只支持 x86：在 Windows x64 / PowerShell 7.4+ 环境运行 `./ci/install-vb6.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind vb6 -Arch x86`。安装 MSI 和注册组件需要管理员权限；GitHub Windows runner 已具备该权限。
+BCB 只支持 x86：在 Windows / PowerShell 7 环境准备 7-Zip，运行 `./ci/install-bcb.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind bcb -Arch x86`。
 Delphi 7 只支持 x86：在 Windows x64 / PowerShell 7 环境准备 7-Zip，以管理员权限运行 `./ci/install-delphi.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind delphi -Arch x86`。
 
 参考：[GitHub runner 标签](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)、[Windows 2022 工具清单](https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md)、[Free Pascal 下载](https://www.freepascal.org/download.html)。

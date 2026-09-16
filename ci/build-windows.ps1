@@ -1,11 +1,12 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('native', 'masm', 'vb6', 'delphi', 'managed', 'pascal')][string]$Kind,
+    [ValidateSet('native', 'masm', 'vb6', 'bcb', 'delphi', 'managed', 'pascal')][string]$Kind,
     [ValidateSet('x86', 'x64')][string]$Arch = 'x86'
 )
 $ErrorActionPreference = 'Stop'
 if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports only x86' }
 if ($Kind -eq 'vb6' -and $Arch -ne 'x86') { throw 'The VB6 examples support only x86' }
+if ($Kind -eq 'bcb' -and $Arch -ne 'x86') { throw 'The BCB examples support only x86' }
 if ($Kind -eq 'delphi' -and $Arch -ne 'x86') { throw 'The Delphi 7 examples support only x86' }
 $root = Split-Path $PSScriptRoot -Parent
 $work = Join-Path $root '.build/work'
@@ -121,6 +122,47 @@ if ($Kind -eq 'native') {
             if (Test-Path $log) { Get-Content $log | Write-Host }
             $process.Dispose()
         }
+    }
+} elseif ($Kind -eq 'bcb') {
+    $sdk = "$root\.build\bcb"
+    if (!(Test-Path "$sdk\bin\bcc32.exe")) { throw 'C++Builder missing; run ci/install-bcb.ps1 first' }
+    $env:PATH = "$sdk\bin;$env:PATH"
+    foreach ($example in @(
+        @{Folder='Code Markers'; Name='Project1'; Artifact='markers-bcb-x86'; Startup='c0w32.obj'; Defines=@()},
+        @{Folder='Licensing'; Name='TestApp'; Artifact='licensing-bcb-x86'; Startup='c0w32w.obj'; Defines=@('-D_UNICODE', '-DUNICODE')}
+    )) {
+        $src = "$work\Examples\$($example.Folder)\BCB"
+        $dest = Directory "$out\$($example.Artifact)"
+        $obj = Directory "$root\.build\obj\$($example.Artifact)"
+        $exe = "$dest\$($example.Name).exe"
+        $map = "$dest\$($example.Name).map"
+        foreach ($output in @($exe, $map)) {
+            if (Test-Path $output) { throw "Refusing to overwrite existing BCB output: $output" }
+        }
+        Push-Location $obj
+        try {
+            # The imported .lib is COFF. Generate an OMF import library from the
+            # original DLL in the object directory, ahead of other library paths.
+            Run "$sdk\bin\implib.exe" @('VMProtectSDK32.lib', "$work\Lib\Windows\VMProtectSDK32.dll")
+            $includes = "$sdk\include\windows\vcl;$sdk\include\windows\rtl;$sdk\include\windows\crtl;$sdk\include\windows\sdk;$sdk\include\dinkumware;$work\Include\C;$src"
+            # Compile the original sources and DFM with one Unicode-capable VCL.
+            # Direct tool calls avoid upgrading either the BCB6 BPR or XE5 CBPROJ.
+            Run "$sdk\bin\bcc32.exe" (@('-c', '-tW', '-tWM', '-O2', '-Vx', '-Ve', '-a8', '-b-', '-w-par', "-I$includes") +
+                $example.Defines + @("$src\$($example.Name).cpp", "$src\Unit1.cpp"))
+            # The OBJ records Unit1.dfm as a relative resource name.
+            Copy-Item "$src\Unit1.dfm" $obj
+            # Preserve the original icon, version info and embedded manifest.
+            $resource = "$src\$($example.Name).res"
+            # CP32MT provides the static C/C++ RTL with Delphi exception support.
+            $link = '-aa -Tpe -c -s -Gn -L"{0};{1}\lib\win32\release;{1}\lib\win32\release\psdk" {2} sysinit.obj {3}.obj Unit1.obj, "{4}", "{5}", vcl.lib rtl.lib import32.lib cp32mt.lib, , "{6}"' -f `
+                $obj, $sdk, $example.Startup, $example.Name, $exe, $map, $resource
+            $link | Set-Content -Encoding ascii 'link.rsp'
+            Run "$sdk\bin\ilink32.exe" @('@link.rsp')
+            foreach ($output in @($exe, $map)) {
+                if (!(Test-Path $output) -or (Get-Item $output).Length -eq 0) { throw "Missing BCB output: $output" }
+            }
+            Copy-Item "$work\Lib\Windows\VMProtectSDK32.dll" $dest
+        } finally { Pop-Location }
     }
 } elseif ($Kind -eq 'delphi') {
     $sdk = "$root\.build\delphi"

@@ -1,0 +1,83 @@
+{
+  "url": "https://altd.embarcadero.com/release/radstudio/12.0/DB629168-0140-4C2D-9E68-79614F3D3B4E",
+  "packages": [
+    {
+      "name": "bcbwin32",
+      "size": 31785827,
+      "password": "naiXoaQrai",
+      "directories": {
+        "BD04FFB6": "bin",
+        "F9169AF": "include/dinkumware",
+        "318244E8": "include/windows/crtl/sys",
+        "64CF8687": "include/windows/crtl",
+        "8CC59F6": "include/windows/rtl",
+        "83995642": "include/windows/sdk/atl",
+        "4B2339AA": "include/windows/sdk/gl",
+        "EC939A0F": "include/windows/sdk/idl",
+        "CBBFB8D": "include/windows/sdk",
+        "8B5BA1C6": "include/windows/vcl",
+        "492D0B8D": "lib/win32/release/psdk",
+        "B09F6549": "lib/win32/release"
+      },
+      "sha256": "e595f1683ab7e3ae7a81bc7bfdf2c14843294ac4a159d73cd5bc8fa8bbac3c12"
+    },
+    {
+      "name": "corewin32",
+      "size": 32008305,
+      "password": "iViajuap!e",
+      "directories": {
+        "17D45C5A": "bin",
+        "39A96E9D": "lib/win32/release",
+        "D8260A15": "bin"
+      },
+      "sha256": "09131e943f1e7b7be44403d9c3965550769bbbaae45474f863853d71b065cae4"
+    },
+    {
+      "name": "core",
+      "size": 34132673,
+      "password": "ion!daeCZio",
+      "directories": {
+        "A1D6B1FD": "bin"
+      },
+      "sha256": "c0cc3b695396a096300187daff2d4d28117d3fd6b153142b7bad33899a89635c"
+    },
+    {
+      "name": "vclwin32runtimes",
+      "size": 1061039,
+      "password": "ickousIA5E",
+      "directories": {
+        "569F9212": "bin",
+        "5E28AD87": "bin",
+        "A9B0AF3A": "lib/win32/release"
+      },
+      "sha256": "8e4744fc99e335cf2e01ae103c68c2ea7b6b6f0ac376db4589436980a6f7edaa"
+    },
+    {
+      "name": "transmogrifierc",
+      "size": 560703,
+      "password": "aeGuckiafg",
+      "directories": {
+        "A898F2D7": "bin"
+      },
+      "sha256": "4aba2f320ab54ba29619f8213d24915bc8411b4aa624b1e12daf3849734ca1f8"
+    },
+    {
+      "name": "corecx",
+      "size": 157487,
+      "password": "MaejoCSl!2",
+      "directories": {
+        "16C949FC": "bin"
+      },
+      "sha256": "d597be3e8465233fbc0ef8b179b2a71b4fc65a05bd2a19fb7c1a12cf9db828b3"
+    },
+    {
+      "name": "coredelphibcb",
+      "size": 1735935,
+      "password": "ieXiqba8ach",
+      "directories": {
+        "F311ED39": "bin"
+      },
+      "sha256": "b9cb0b679d616a1f9db73981eacaa3adfec214cf8f98313ac7113f7f31f6a991"
+    }
+  ]
+}
