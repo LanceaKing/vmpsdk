@@ -80,9 +80,14 @@ $arguments = '/SP- /NORESTART /NoExeVerify /TYPE=full /TASKS="" /LANG=en /DIR="{
 $process = Start-Process $installer -ArgumentList $arguments -PassThru
 try {
     $timer = [Diagnostics.Stopwatch]::StartNew()
-    $lastState = ''
+    $lastStates = @{}
+    $nextLogAt = 30
     while (!$process.WaitForExit(500)) {
         if ($timer.Elapsed.TotalMinutes -ge 10) { throw 'Delphi installation timed out after 10 minutes' }
+        if ($timer.Elapsed.TotalSeconds -ge $nextLogAt) {
+            if (Test-Path $installLog) { Get-Content $installLog -Tail 5 | Write-Host }
+            $nextLogAt += 30
+        }
         # Inno Setup runs the wizard in a renamed temporary child process.
         $processes = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId)
         $owners = @($process.Id)
@@ -91,12 +96,12 @@ try {
         }
         foreach ($window in [DelphiSetupUI]::Windows([IntPtr]::Zero)) {
             if ($window.ProcessId -notin $owners) { continue }
-            if ($window.Class -notin @('#32770', 'TWizardForm')) { continue }
+            if ($window.Class -in @('TApplication', 'TWindowDisabler-Window')) { continue }
             $controls = @([DelphiSetupUI]::Windows($window.Handle))
             $state = (@($window) + $controls | ForEach-Object { "$($_.Class): $($_.Text) [enabled=$($_.Enabled)]" }) -join "`n"
-            if ($state -ne $lastState) {
+            if ($state -ne $lastStates[$window.Handle]) {
                 Write-Host $state
-                $lastState = $state
+                $lastStates[$window.Handle] = $state
             }
             $buttons = @($controls | Where-Object { $_.Enabled -and $_.Class -match 'Button$' })
             if ($window.Class -eq '#32770') {
