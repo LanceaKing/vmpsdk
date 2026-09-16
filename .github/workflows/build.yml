@@ -164,13 +164,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python ci/verify.py --root .build/work --build-tree
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload VB6 installation and compiler logs
-        if: failure() && matrix.kind == 'vb6'
-        uses: actions/upload-artifact@v7
-        with:
-          name: windows-vb6-x86-logs
-          path: .build/logs/vb6/
-          if-no-files-found: warn
       - uses: actions/upload-artifact@v7
         with:
           name: windows-${{ matrix.kind }}-${{ matrix.arch }}
