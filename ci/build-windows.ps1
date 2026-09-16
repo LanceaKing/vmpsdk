@@ -1,9 +1,10 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('native', 'managed', 'pascal')][string]$Kind,
+    [ValidateSet('native', 'masm', 'managed', 'pascal')][string]$Kind,
     [ValidateSet('x86', 'x64')][string]$Arch = 'x86'
 )
 $ErrorActionPreference = 'Stop'
+if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports only x86' }
 $root = Split-Path $PSScriptRoot -Parent
 $work = Join-Path $root '.build/work'
 $out = Join-Path $root '.build/artifacts'
@@ -67,6 +68,19 @@ if ($Kind -eq 'native') {
             'KeyGenExample.cpp', 'stdafx.cpp', "/Fe$dest\KeyGenExample.exe", '/link', "/LIBPATH:$dest")
         # The untouched sample intentionally has no product key data.
         Run "$dest\KeyGenExample.exe" @()
+    } finally { Pop-Location }
+} elseif ($Kind -eq 'masm') {
+    # The original includes use drive-rooted paths: \masm32 must be on the work drive.
+    $sdk = Join-Path ([IO.Path]::GetPathRoot($work)) 'masm32'
+    $dest = Directory "$out\masm-x86"
+    Push-Location "$work\Examples\Code Markers\MASM"
+    try {
+        # Same assembler/linker and options as makeit.bat, without its final pause.
+        # This example uses in-memory dialogs and has no rsrc.rc.
+        Run "$sdk\bin\ml.exe" @('/c', '/coff', 'Project1.asm')
+        Run "$sdk\bin\link.exe" @('/SUBSYSTEM:WINDOWS', 'Project1.obj', "/OUT:$dest\Project1.exe")
+        if (!(Test-Path "$dest\Project1.exe")) { throw 'Missing MASM executable' }
+        Copy-Item 'VMProtectSDK32.dll' $dest
     } finally { Pop-Location }
 } elseif ($Kind -eq 'managed') {
     $packages = Directory "$root\.build\packages"

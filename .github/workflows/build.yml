@@ -104,6 +104,7 @@ jobs:
         include:
           - {kind: native, arch: x86}
           - {kind: native, arch: x64}
+          - {kind: masm, arch: x86}
           - {kind: managed, arch: x86}
           - {kind: pascal, arch: x86}
     steps:
@@ -111,6 +112,15 @@ jobs:
         run: git config --global core.symlinks true
       - uses: actions/checkout@v7
       - run: python ci/verify.py
+      - name: Cache MASM32 SDK download
+        if: matrix.kind == 'masm'
+        uses: actions/cache@v6
+        with:
+          path: .build/downloads/masm32/m32v9r.zip
+          key: ${{ runner.os }}-${{ runner.arch }}-masm32-v9-${{ hashFiles('ci/install-masm32.ps1') }}
+      - name: Prepare MASM32 SDK without the GUI installer
+        if: matrix.kind == 'masm'
+        run: ./ci/install-masm32.ps1
       - name: Cache .NET reference assemblies
         if: matrix.kind == 'managed'
         uses: actions/cache@v6

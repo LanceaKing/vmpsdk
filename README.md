@@ -42,7 +42,7 @@ Windows 需要允许创建符号链接（开发者模式或管理员权限）；
 所有构建使用 `.build/work/` 中的副本，产物放在 `.build/artifacts/` 并上传至 Actions artifacts。
 构建前后校验全部导入文件；构建副本也校验原始文件摘要。源文件、工程及 SDK 不打补丁、不重写、不自动升级。
 
-使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows .NET 引用程序集和 Lazarus/FPC 安装目录。
+使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows MASM32 安装包、.NET 引用程序集和 Lazarus/FPC 安装目录。
 缓存键包含 runner 平台、架构及依赖版本或安装脚本摘要；APT 还包含解析后的安装计划摘要。依赖变化会生成新缓存。
 首次成功构建写入缓存，后续构建恢复缓存；Windows Lazarus/FPC 精确命中后跳过下载安装。示例程序每次重新编译，产物仍上传至 Artifacts。
 
@@ -55,6 +55,7 @@ Windows 需要允许创建符号链接（开发者模式或管理员权限）；
 | macOS 15 Intel | Code Markers / Licensing Xcode，x64 | 原 `.xcodeproj`，通过命令行指定当前 SDK、部署版本、关闭签名 |
 | Windows 2022 | MSVC Code Markers / Licensing，x86 | 原 `.vcxproj`，命令行指定 v143 和 Windows SDK |
 | Windows 2022 | MSVC Code Markers / Licensing，x64 | 原工程仅定义 Win32；直接编译同一组源文件和资源 |
+| Windows 2022 | MASM Code Markers，x86 | MASM32 v9 自带的 ML 6.14 / LINK 5.12，沿用原 `makeit.bat` 的汇编和链接参数 |
 | Windows 2022 | KeyGen DLL 和调用示例，x86 / x64 | 按旧 `.vcproj` 的源文件、资源与 `.def` 构建；原工程无需转换 |
 | Windows 2022 | .NET Code Markers / Licensing / KeyGen / Usage | 原 `.csproj`，NuGet reference assemblies 保留 v2.0 / v4.0 目标框架，命令行补齐引用路径 |
 | Windows 2022 | Free Pascal / Lazarus Code Markers，x86 | Lazarus 4.0 / FPC 3.2.2；FPC 沿用 `makeit.bat` 参数；Lazarus 使用原源文件及预编译 LCL units |
@@ -64,11 +65,14 @@ GUI 示例只验证编译和链接，不自动点击窗口。KeyGen 调用示例
 
 兼容参数也仅限 CI：MinGW 在外部 include 目录建立 `Resource.h` → 原 `resource.h` 的别名，以适配 Linux 大小写规则；KeyGen DLL 用 MSVC `/FIstring` 补充旧 STL 曾间接包含的标准头文件。
 
+MASM 使用 [CodingCrew 的 MASM32 v9 安装包](https://www.codingcrew.de/masm32/download/m32v9r.zip)，SHA-256 固定为 `000a660fce59e619ea608a889b9ae1e43ad1dfcb81ef79ca22a0d67503cd0205`。
+[`install-masm32.ps1`](ci/install-masm32.ps1) 校验下载或缓存的安装包，用 runner 自带的 7-Zip 提取 `install.exe` 内嵌的数据，再生成示例需要的 Windows import libraries 和 MASM32 静态库；不运行交互式安装器。
+SDK 放在仓库所在盘的 `\masm32`（已有目录则拒绝覆盖），满足原始源码的绝对路径引用。构建上传 `windows-masm-x86` artifact，内含 `masm-x86/Project1.exe` 和 `VMProtectSDK32.dll`。
+
 ### 未纳入标准 runner 的项目
 
 这些文件完整保留，未用跳过或 `continue-on-error` 冒充构建通过：
 
-- MASM：原 `makeit.bat` 和 `Project1.inc` 依赖 `\MASM32\` 的 SDK、宏与库；Visual Studio 自带的 `ml.exe` 不足以替代。
 - VB6、Delphi、BCB：需要相应编译器、VCL/运行库及许可环境。
 - Licensing/DDK：原 `make.bat` 依赖 `C:\WinDDK\7600.16385.1` 和 XP 构建环境。
 - Examples/Scripts：保留原预编译程序及 `.vmp` 配置；没有相应程序源码，无法重新编译。
@@ -85,6 +89,7 @@ python3 ci/verify.py --root .build/work --build-tree
 ```
 
 macOS 使用 `gcc`、`fpc`、`xcode-markers` 或 `xcode-licensing` 参数。需要 Intel Mac；本包的 Mach-O SDK 只有 i386/x86_64，没有 ARM64。
-Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `managed` / `pascal`；环境准备见 workflow。
+Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `masm` / `managed` / `pascal`；环境准备见 workflow。
+MASM 只支持 x86：准备 7-Zip 后运行 `./ci/install-masm32.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind masm -Arch x86`。
 
 参考：[GitHub runner 标签](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)、[Windows 2022 工具清单](https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md)、[Free Pascal 下载](https://www.freepascal.org/download.html)。
