@@ -17,6 +17,20 @@ if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne $sha256) {
 # Only remove the archive's outer directory; do not run its portable launcher.
 Expand-Archive -LiteralPath $archive -DestinationPath $downloads -Force
 Move-Item (Join-Path $downloads "vb6-portable-$revision") $sdk
+# The portable package omits the data-formatting COM server used by intrinsic
+# TextBox and Label controls, even when the forms do not bind to a database.
+$runtime = Join-Path $downloads 'VB60SP6-KB2708437-x86-ENU.msi'
+if (!(Test-Path $runtime)) {
+    Invoke-WebRequest 'https://download.microsoft.com/download/5/6/3/5635D6A9-885E-4C80-A2E7-8A7F4488FBF1/VB60SP6-KB2708437-x86-ENU.msi' -OutFile $runtime
+}
+if ((Get-FileHash $runtime -Algorithm SHA256).Hash -ne '350602b2e084b39c97d1394c8594b18e41ef622315d4a9635c5e8ea6aa977b5e') {
+    throw 'VB6 runtime update SHA-256 mismatch'
+}
+& 7z x -y $runtime "-o$sdk" 'msstdfmt.dll'
+if ($LASTEXITCODE -ne 0) { throw "Extracting MSSTDFMT.DLL exited with $LASTEXITCODE" }
+$process = Start-Process "$env:SystemRoot\SysWOW64\regsvr32.exe" `
+    -ArgumentList ('/s "{0}"' -f "$sdk\msstdfmt.dll") -Wait -PassThru
+if ($process.ExitCode -ne 0) { throw "MSSTDFMT registration exited with $($process.ExitCode)" }
 # VBA6 exports a type library, not DllRegisterServer. Register the type libraries
 # from a 32-bit process, as the original VB6 installer does.
 $registration = @'

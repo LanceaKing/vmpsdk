@@ -132,7 +132,9 @@ jobs:
         if: matrix.kind == 'vb6'
         uses: actions/cache@v6
         with:
-          path: .build/downloads/vb6/vb6-portable.zip
+          path: |
+            .build/downloads/vb6/vb6-portable.zip
+            .build/downloads/vb6/VB60SP6-KB2708437-x86-ENU.msi
           key: ${{ runner.os }}-${{ runner.arch }}-windows-2022-vb6-${{ hashFiles('ci/install-vb6.ps1') }}
       - name: Prepare VB6 compiler
         if: matrix.kind == 'vb6'
