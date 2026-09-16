@@ -27,11 +27,31 @@ function Probe([string]$Name) {
     if (Test-Path "$probe/$Name.log") { Get-Content "$probe/$Name.log" }
     if (Test-Path "$probe/Probe.exe") { Remove-Item "$probe/Probe.exe" }
 }
-Probe 'empty-form'
-# Match the original installer ProductDir setting, independently of type library registration.
-& "$env:SystemRoot/System32/reg.exe" add 'HKLM\SOFTWARE\Microsoft\VisualStudio\6.0\Setup\Microsoft Visual Basic' /v ProductDir /t REG_SZ /d "$root\.build\vb6" /f /reg:32
-Probe 'empty-form-productdir'
-# The source's built-in controls, with its event handlers omitted only in this temporary probe.
 $form = Get-Content "$root/Examples/Code Markers/VB6/Form1.frm" -Raw
-($form -split 'Private Sub Command1_Click')[0] | Set-Content -Encoding ascii "$probe/Form1.frm"
-Probe 'sample-controls'
+$lines = (($form -split 'Private Sub Command1_Click')[0] -split "`r?`n")
+$structure = $lines | Where-Object { $_ -match '^\s*(VERSION|Begin |End\s*$|Attribute VB_Name)' }
+$structure | Set-Content -Encoding ascii "$probe/Form1.frm"
+Probe 'controls-only'
+foreach ($control in @('CommandButton', 'TextBox', 'Label')) {
+    @"
+VERSION 5.00
+Begin VB.Form Form1
+    Begin VB.$control Control1
+    End
+End
+Attribute VB_Name = "Form1"
+Attribute VB_PredeclaredId = True
+"@ | Set-Content -Encoding ascii "$probe/Form1.frm"
+    Probe "only-$control"
+}
+# Test each nonstructural line in its original location, with all other values omitted.
+foreach ($index in 0..($lines.Count - 1)) {
+    $line = $lines[$index]
+    if (!$line.Trim() -or $line -match '^\s*(VERSION|Begin |End\s*$|Attribute VB_Name)') { continue }
+    $candidate = for ($i=0; $i -lt $lines.Count; $i++) {
+        if ($i -eq $index -or $lines[$i] -match '^\s*(VERSION|Begin |End\s*$|Attribute VB_Name)') { $lines[$i] }
+    }
+    $candidate | Set-Content -Encoding ascii "$probe/Form1.frm"
+    Write-Host "[DEBUG-vb6] Property: $line"
+    Probe "property-$index"
+}
