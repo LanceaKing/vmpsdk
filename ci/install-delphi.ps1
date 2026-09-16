@@ -8,7 +8,9 @@ $installer = Join-Path $downloads "$stem/$stem.exe"
 if (Test-Path $sdk) { throw "Refusing to overwrite existing Delphi installation: $sdk" }
 New-Item -ItemType Directory -Force -Path $downloads | Out-Null
 if (!(Test-Path $archive)) {
-    Invoke-WebRequest "https://downloads.sourceforge.net/project/c0de-s/$stem.rar" -OutFile $archive
+    # Use the file mirror directly; the download portal can return an HTML page.
+    & curl.exe --fail --location --retry 3 --output $archive "https://phoenixnap.dl.sourceforge.net/project/c0de-s/$stem.rar"
+    if ($LASTEXITCODE -ne 0) { throw "Delphi download failed with exit code $LASTEXITCODE" }
 }
 if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne '352d0c13c784d85b97f3a97ce2fa07b44f3ee00b4a0a7b9107db1928873eb129') {
     throw 'Delphi 7 Lite archive SHA-256 mismatch'
