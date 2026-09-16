@@ -26,11 +26,20 @@ if (!(Test-Path $runtime)) {
 if ((Get-FileHash $runtime -Algorithm SHA256).Hash -ne '350602b2e084b39c97d1394c8594b18e41ef622315d4a9635c5e8ea6aa977b5e') {
     throw 'VB6 runtime update SHA-256 mismatch'
 }
-& 7z x -y $runtime "-o$sdk" 'msstdfmt.dll'
-if ($LASTEXITCODE -ne 0) { throw "Extracting MSSTDFMT.DLL exited with $LASTEXITCODE" }
-$process = Start-Process "$env:SystemRoot\SysWOW64\regsvr32.exe" `
-    -ArgumentList ('/s "{0}"' -f "$sdk\msstdfmt.dll") -Wait -PassThru
-if ($process.ExitCode -ne 0) { throw "MSSTDFMT registration exited with $($process.ExitCode)" }
+# Let Windows Installer install and register all runtime update features.
+$logs = Join-Path $root '.build/logs/vb6'
+New-Item -ItemType Directory -Force -Path $logs | Out-Null
+$installLog = Join-Path $logs 'runtime-install.log'
+$arguments = '/i "{0}" /qn /norestart ADDLOCAL=ALL /L*v "{1}"' -f $runtime, $installLog
+$process = Start-Process "$env:SystemRoot\System32\msiexec.exe" -ArgumentList $arguments -Wait -PassThru
+try {
+    if ($process.ExitCode -notin @(0, 3010)) {
+        if (Test-Path $installLog) { Get-Content $installLog -Tail 80 | Write-Host }
+        throw "VB6 runtime installer exited with $($process.ExitCode); see $installLog"
+    }
+    Write-Host "VB6 runtime installer exited with $($process.ExitCode)"
+    if ($process.ExitCode -eq 3010) { Write-Warning 'VB6 runtime update requested a restart; automatic restart is disabled.' }
+} finally { $process.Dispose() }
 # VBA6 exports a type library, not DllRegisterServer. Register the type libraries
 # from a 32-bit process, as the original VB6 installer does.
 $registration = @'
