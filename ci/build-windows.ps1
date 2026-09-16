@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('native', 'masm', 'vb6', 'bcb', 'delphi', 'managed', 'pascal')][string]$Kind,
+    [ValidateSet('native', 'masm', 'vb6', 'bcb', 'delphi', 'ddk', 'managed', 'pascal')][string]$Kind,
     [ValidateSet('x86', 'x64')][string]$Arch = 'x86'
 )
 $ErrorActionPreference = 'Stop'
@@ -8,6 +8,11 @@ if ($Kind -eq 'masm' -and $Arch -ne 'x86') { throw 'The MASM example supports on
 if ($Kind -eq 'vb6' -and $Arch -ne 'x86') { throw 'The VB6 examples support only x86' }
 if ($Kind -eq 'bcb' -and $Arch -ne 'x86') { throw 'The BCB examples support only x86' }
 if ($Kind -eq 'delphi' -and $Arch -ne 'x86') { throw 'The Delphi examples support only x86' }
+if ($Kind -eq 'ddk') {
+    if ($Arch -ne 'x86') { throw 'The original DDK project supports only x86' }
+    & "$PSScriptRoot/build-ddk.ps1"
+    return
+}
 $root = Split-Path $PSScriptRoot -Parent
 $work = Join-Path $root '.build/work'
 $out = Join-Path $root '.build/artifacts'

@@ -49,6 +49,18 @@ class PackageTests(unittest.TestCase):
             self.build_zip('windows-x86-masm-markers')
         self.assertFalse(self.archives.exists())
 
+    def test_ddk_keeps_driver_dependency_and_symbols_only(self):
+        expected = {'TestApp.sys', 'VMProtectDDK32.sys', 'TestApp.map', 'TestApp.pdb'}
+        for name in expected | {'TestApp.obj', 'TestApp.lib', 'TestApp.exp', 'build.log', 'VMProtectSDK32.dll'}:
+            self.file(f'licensing-ddk-x86/{name}')
+        with zipfile.ZipFile(self.build_zip('windows-x86-ddk-licensing')) as archive:
+            self.assertEqual(set(archive.namelist()), expected)
+
+    def test_ddk_requires_kernel_runtime(self):
+        self.file('licensing-ddk-x86/TestApp.sys')
+        with self.assertRaisesRegex(ValueError, 'VMProtectDDK32.sys'):
+            self.build_zip('windows-x86-ddk-licensing')
+
     def test_empty_executable_stops_packaging(self):
         self.file('masm-x86/Project1.exe', b'')
         self.file('masm-x86/VMProtectSDK32.dll')
