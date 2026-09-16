@@ -19,8 +19,7 @@ Expand-Archive -LiteralPath $archive -DestinationPath $downloads -Force
 Move-Item (Join-Path $downloads "vb6-portable-$revision") $sdk
 # VBA6 exports a type library, not DllRegisterServer. Register the type libraries
 # from a 32-bit process, as the original VB6 installer does.
-$registration = Join-Path $sdk 'register.ps1'
-@'
+$registration = @'
 $ErrorActionPreference = 'Stop'
 Add-Type @"
 using System;
@@ -32,7 +31,7 @@ public static class VB6TypeLibrary {
 "@
 foreach ($name in @('Vba6.dll', 'Vb6.olb', 'Vb6ext.olb')) {
     $library = [IntPtr]::Zero
-    [VB6TypeLibrary]::LoadTypeLibEx((Join-Path $PSScriptRoot $name), 1, [ref]$library)
+    [VB6TypeLibrary]::LoadTypeLibEx((Join-Path $env:VMPSDK_VB6_DIR $name), 1, [ref]$library)
     [void][Runtime.InteropServices.Marshal]::Release($library)
 }
 # Core setup records 776-778 from VB98ENT.STF. Without these installation
@@ -47,9 +46,10 @@ foreach ($id in $coreLicenses.Keys) {
     $key = [Microsoft.Win32.Registry]::ClassesRoot.CreateSubKey("Licenses\$id")
     try { $key.SetValue('', $coreLicenses[$id]) } finally { $key.Dispose() }
 }
-'@ | Set-Content -Encoding ascii $registration
-$arguments = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $registration
+'@
+$encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($registration))
 $process = Start-Process "$env:SystemRoot\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" `
-    -ArgumentList $arguments -Wait -PassThru
+    -ArgumentList '-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded `
+    -Environment @{VMPSDK_VB6_DIR=$sdk} -Wait -PassThru
 if ($process.ExitCode -ne 0) { throw "VB6 registration exited with $($process.ExitCode)" }
 Write-Host "VB6 $((Get-Item "$sdk\Vb6.exe").VersionInfo.FileVersion) ready: $sdk"

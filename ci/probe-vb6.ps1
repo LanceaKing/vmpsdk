@@ -17,10 +17,14 @@ CompilationType=0
 '@ | Set-Content -Encoding ascii "$probe/Probe.vbp"
 $compiler = "$root/.build/vb6/Vb6.exe"
 $start = (Get-Date).AddMinutes(-5)
+$reference = Get-Content "$root/.build/work/Examples/Code Markers/VB6/Project1.vbp" | Where-Object { $_ -like 'Reference=*' }
+$minimal = Get-Content "$probe/Probe.vbp" -Raw
+($minimal + "`r`n$reference") | Set-Content -Encoding ascii "$probe/RefBroken.vbp"
+($minimal + "`r`n" + ($reference -replace '#[^#]+#OLE Automation$', "#$env:SystemRoot\SysWOW64\stdole2.tlb#OLE Automation")) |
+    Set-Content -Encoding ascii "$probe/RefSystem.vbp"
 foreach ($case in @(
-    @{Name='minimal'; Layer=''; Project="$probe/Probe.vbp"; Exe='Probe.exe'},
-    @{Name='minimal-xp'; Layer='WinXPSP3'; Project="$probe/Probe.vbp"; Exe='Probe.exe'},
-    @{Name='markers-xp'; Layer='WinXPSP3'; Project="$root/.build/work/Examples/Code Markers/VB6/Project1.vbp"; Exe='Project1.exe'}
+    @{Name='ref-broken'; Layer=''; Project="$probe/RefBroken.vbp"; Exe='Probe.exe'},
+    @{Name='ref-system'; Layer=''; Project="$probe/RefSystem.vbp"; Exe='Probe.exe'}
 )) {
     $env:__COMPAT_LAYER = $case.Layer
     $p = Start-Process $compiler -WorkingDirectory $probe -PassThru -ArgumentList @(
@@ -32,6 +36,20 @@ foreach ($case in @(
     if (Test-Path "$probe/$($case.Exe)") { Remove-Item "$probe/$($case.Exe)" }
 }
 Remove-Item Env:__COMPAT_LAYER
+# Satisfy the original reference path without editing the project.
+$projectDir = "$root/.build/work/Examples/Code Markers/VB6"
+$alias = [IO.Path]::GetFullPath((Join-Path $projectDir ($reference.Split('#')[3])))
+if (!(Test-Path $alias)) {
+    New-Item -ItemType Directory -Force (Split-Path $alias) | Out-Null
+    Copy-Item "$env:SystemRoot/SysWOW64/stdole2.tlb" $alias
+}
+Write-Host "[DEBUG-vb6] OLE reference alias: $alias"
+$p = Start-Process $compiler -WorkingDirectory $projectDir -PassThru -ArgumentList (
+    '/make Project1.vbp /out "{0}" /outdir "{1}"' -f "$probe/markers-alias.log", $probe
+)
+if (!$p.WaitForExit(15000)) { $p.Kill($true); $p.WaitForExit() }
+Write-Host "[DEBUG-vb6] markers-alias: exit $($p.ExitCode); EXE $(Test-Path "$probe/Project1.exe")"
+if (Test-Path "$probe/markers-alias.log") { Get-Content "$probe/markers-alias.log" }
 Start-Sleep 3
 Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$start} -ErrorAction SilentlyContinue |
     Where-Object Message -Match 'vb6|vba6|c2.exe' |
