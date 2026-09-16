@@ -50,7 +50,6 @@ public static class DelphiSetupUI {
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll")] static extern IntPtr GetParent(IntPtr handle);
     [DllImport("user32.dll")] static extern int GetDlgCtrlID(IntPtr handle);
-    [DllImport("user32.dll")] static extern IntPtr SendMessageTimeout(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out IntPtr result);
     static DelphiSetupWindow Read(IntPtr handle) {
         uint pid;
         GetWindowThreadProcessId(handle, out pid);
@@ -66,15 +65,6 @@ public static class DelphiSetupUI {
         if (parent == IntPtr.Zero) EnumWindows(callback, IntPtr.Zero);
         else EnumChildWindows(parent, callback, IntPtr.Zero);
         return windows.ToArray();
-    }
-    public static bool Checked(IntPtr handle) {
-        IntPtr result;
-        if (SendMessageTimeout(handle, 0xF0, IntPtr.Zero, IntPtr.Zero, 2, 1000, out result) == IntPtr.Zero)
-            throw new Exception("Delphi installer control is unresponsive");
-        return result.ToInt64() == 1;
-    }
-    public static void Click(IntPtr handle) {
-        if (!PostMessage(handle, 0xF5, IntPtr.Zero, IntPtr.Zero)) throw new Exception("Cannot click Delphi installer control");
     }
     public static void PressButton(IntPtr handle) {
         // BN_CLICKED avoids BM_CLICK's dependence on the active desktop/dialog.
@@ -120,22 +110,18 @@ try {
                 continue
             }
             if ($window.Class -ne 'TWizardForm') { continue }
-            $accept = $controls | Where-Object { $_.Class -match 'RadioButton$' -and $_.Text.Replace('&', '') -match '^I accept' } | Select-Object -First 1
-            if ($accept -and ![DelphiSetupUI]::Checked($accept.Handle)) {
-                [DelphiSetupUI]::Click($accept.Handle)
-                continue
-            }
-            # Do not launch the IDE or documentation after installing.
-            $launch = $controls | Where-Object { $_.Class -match 'CheckBox$' -and $_.Text -match '(?i)launch|readme|run .*delphi' -and [DelphiSetupUI]::Checked($_.Handle) } | Select-Object -First 1
-            if ($launch) {
-                [DelphiSetupUI]::Click($launch.Handle)
-                continue
-            }
             $next = $buttons | Where-Object { $_.Text.Replace('&', '').Trim() -in @('Next >', 'I Agree >', 'Install', 'Finish') } | Select-Object -First 1
             if ($next) { [DelphiSetupUI]::PressButton($next.Handle) }
         }
     }
     if ($process.ExitCode -ne 0) { throw "Delphi installer exited with $($process.ExitCode)" }
+    # This repack starts the IDE from its post-install checklist. Close only ours.
+    Get-Process -Name delphi32 -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -eq (Join-Path $sdk 'Bin\delphi32.exe') } |
+        ForEach-Object {
+            Write-Host "Closing the installed Delphi IDE (PID $($_.Id))"
+            $_ | Stop-Process -Force
+        }
     foreach ($file in @('Bin\dcc32.exe', 'Bin\brcc32.exe', 'Bin\rlink32.dll', 'Lib\System.dcu', 'Lib\Forms.dcu')) {
         $path = Join-Path $sdk $file
         if (!(Test-Path $path) -or (Get-Item $path).Length -eq 0) { throw "Missing Delphi toolchain file: $path" }

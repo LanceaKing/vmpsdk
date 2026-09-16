@@ -48,7 +48,7 @@ ZIP 根目录直接包含该项目的程序和运行依赖；macOS `.app` 和 `.
 打包保留运行配置、manifest、映射文件、调试符号和导入库，排除构建中间文件。Unix 执行权限和符号链接保存在 ZIP 中。
 [`package.py`](ci/package.py) 定义每个项目的文件清单；上传使用 `archive: false`，下载后无需再解开一层压缩包。后续修改遵守 [`AGENTS.md`](AGENTS.md)。
 
-使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows MASM32 / VB6 工具链下载包、.NET 引用程序集和 Lazarus/FPC 安装目录。
+使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows MASM32 / VB6 / Delphi 工具链下载包、.NET 引用程序集和 Lazarus/FPC 安装目录。
 缓存键包含 runner 平台、架构及依赖版本或安装脚本摘要；APT 还包含解析后的安装计划摘要。依赖变化会生成新缓存。
 首次成功构建写入缓存，后续构建恢复缓存；Windows Lazarus/FPC 精确命中后跳过下载安装。示例程序每次重新编译，产物仍上传至 Artifacts。
 
@@ -63,6 +63,7 @@ ZIP 根目录直接包含该项目的程序和运行依赖；macOS `.app` 和 `.
 | Windows 2022 | MSVC Code Markers / Licensing，x64 | 原工程仅定义 Win32；直接编译同一组源文件和资源 |
 | Windows 2022 | MASM Code Markers，x86 | MASM32 v9 自带的 ML 6.14 / LINK 5.12，沿用原 `makeit.bat` 的汇编和链接参数 |
 | Windows 2022 | VB6 Code Markers / Licensing，x86 | VB6 6.00.8176，以 `/make` 编译原 `.vbp`，通过 `/outdir` 指定产物目录 |
+| Windows 2022 | Delphi Code Markers / Licensing / KeyGen 调用示例，x86 | Delphi 7 的 `dcc32.exe` 直接编译原 `.dpr`，生成 EXE 和详细 MAP |
 | Windows 2022 | KeyGen DLL 和调用示例，x86 / x64 | 按旧 `.vcproj` 的源文件、资源与 `.def` 构建；原工程无需转换 |
 | Windows 2022 | .NET Code Markers / Licensing / KeyGen / Usage | 原 `.csproj`，NuGet reference assemblies 保留 v2.0 / v4.0 目标框架，命令行补齐引用路径 |
 | Windows 2022 | Free Pascal / Lazarus Code Markers，x86 | Lazarus 4.0 / FPC 3.2.2；FPC 沿用 `makeit.bat` 参数；Lazarus 使用原源文件及预编译 LCL units |
@@ -86,11 +87,17 @@ VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb
 两个工程按原始编译选项构建，不修改 `.vbp`、窗体或 SDK。每个工程限时 120 秒，同时检查进程退出码、成功日志和非空 EXE；缺少工具链或编译失败会使 job 失败。
 VB6 分别上传 `windows-x86-vb6-markers.zip` 和 `windows-x86-vb6-licensing.zip`。根目录包含各自的 `Project1.exe` 或 `TestApp.exe`，以及 `VMProtectSDK32.dll`。
 
+Delphi 使用 SourceForge 上的第三方归档 [Delphi 7 Lite Full Edition 7.3.4.3（20110801）](https://sourceforge.net/projects/c0de-s/files/Delphi7_Lite_Full_Edition_Setup_7.3.4.3_Build_20110801.rar/download)。RAR 的 SHA-256 固定为 `352d0c13c784d85b97f3a97ce2fa07b44f3ee00b4a0a7b9107db1928873eb129`，内层安装器为 `e413ecd2615e24fb3a3a60555a6afdaccb812c70c3b693e709859928ecc878da`。工具链的版权及许可仍归原权利人所有。
+[`install-delphi.ps1`](ci/install-delphi.ps1) 校验下载或缓存的包，在 Windows runner 原生运行完整安装器，以 `/TYPE=full` 安装到 `.build/delphi/`，不使用 Wine。此旧安装器在 x64 Windows 的静默模式下直接拒绝安装，因此脚本自动操作原生安装向导，并确认其 32 位兼容性提示。安装器默认启动的 IDE 由脚本按可执行文件路径识别并关闭；安装超时或未知提示会使 job 失败。
+校验两层 SHA-256 后，脚本使用安装器支持的 `/NoExeVerify` 跳过归档副本的时间戳及版本元数据检查；仍由安装器检查内部文件完整性。
+构建不转换 `.dof` / `.dproj`。Licensing 的原 `.dpr` 引用了缺失的 `TestApp.res`，CI 仅在构建副本生成空资源。新 EXE、MAP 和中间文件输出到独立目录，保留原有 `TestApp.map`。KeyGen 调用示例使用原包的 `KeyGen32.dll`，运行时检查空产品参数对应的 `Error: 2`。
+三个项目分别上传 `windows-x86-delphi-markers.zip`、`windows-x86-delphi-licensing.zip` 和 `windows-x86-delphi-keygen-usage.zip`；根目录包含各自的 EXE、MAP 和所需的 `VMProtectSDK32.dll` 或 `KeyGen32.dll`。
+
 ### 未纳入标准 runner 的项目
 
 这些文件完整保留，未用跳过或 `continue-on-error` 冒充构建通过：
 
-- Delphi、BCB：需要相应编译器、VCL/运行库及许可环境。
+- BCB：需要相应编译器、VCL/运行库及许可环境。
 - Licensing/DDK：原 `make.bat` 依赖 `C:\WinDDK\7600.16385.1` 和 XP 构建环境。
 - Examples/Scripts：保留原预编译程序及 `.vmp` 配置；没有相应程序源码，无法重新编译。
 - KeyGen/PHP：解释执行示例，无编译目标。
@@ -107,8 +114,9 @@ python3 ci/package.py linux-x64-gcc-markers
 ```
 
 macOS 使用 `gcc`、`fpc`、`xcode-markers` 或 `xcode-licensing` 参数。需要 Intel Mac；本包的 Mach-O SDK 只有 i386/x86_64，没有 ARM64。
-Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `masm` / `vb6` / `managed` / `pascal`；环境准备见 workflow。
+Windows 使用 `./ci/build-windows.ps1 -Kind native -Arch x86`，或 `masm` / `vb6` / `delphi` / `managed` / `pascal`；环境准备见 workflow。
 MASM 只支持 x86：准备 7-Zip 后运行 `./ci/install-masm32.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind masm -Arch x86`。
 VB6 只支持 x86：在 Windows x64 / PowerShell 7.4+ 环境运行 `./ci/install-vb6.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind vb6 -Arch x86`。安装 MSI 和注册组件需要管理员权限；GitHub Windows runner 已具备该权限。
+Delphi 7 只支持 x86：在 Windows x64 / PowerShell 7 环境准备 7-Zip，以管理员权限运行 `./ci/install-delphi.ps1`，再运行 `python ci/prepare.py` 和 `./ci/build-windows.ps1 -Kind delphi -Arch x86`。
 
 参考：[GitHub runner 标签](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)、[Windows 2022 工具清单](https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md)、[Free Pascal 下载](https://www.freepascal.org/download.html)。
