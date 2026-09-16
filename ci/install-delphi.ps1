@@ -48,6 +48,8 @@ public static class DelphiSetupUI {
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr handle, StringBuilder text, int size);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr handle, StringBuilder text, int size);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] static extern IntPtr GetParent(IntPtr handle);
+    [DllImport("user32.dll")] static extern int GetDlgCtrlID(IntPtr handle);
     [DllImport("user32.dll")] static extern IntPtr SendMessageTimeout(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out IntPtr result);
     static DelphiSetupWindow Read(IntPtr handle) {
         uint pid;
@@ -73,6 +75,11 @@ public static class DelphiSetupUI {
     }
     public static void Click(IntPtr handle) {
         if (!PostMessage(handle, 0xF5, IntPtr.Zero, IntPtr.Zero)) throw new Exception("Cannot click Delphi installer control");
+    }
+    public static void PressButton(IntPtr handle) {
+        // BN_CLICKED avoids BM_CLICK's dependence on the active desktop/dialog.
+        if (!IsWindowEnabled(handle) || !PostMessage(GetParent(handle), 0x111, new IntPtr(GetDlgCtrlID(handle) & 0xFFFF), handle))
+            throw new Exception("Cannot press Delphi installer button");
     }
 }
 '@
@@ -109,7 +116,7 @@ try {
                 if ($state -notmatch '(?i)64.bit') { throw "Unexpected Delphi installer dialog: $state" }
                 $next = $buttons | Where-Object { $_.Text.Replace('&', '') -eq 'Yes' } | Select-Object -First 1
                 if (!$next) { throw "Missing Yes button in Delphi x64 warning: $state" }
-                [DelphiSetupUI]::Click($next.Handle)
+                [DelphiSetupUI]::PressButton($next.Handle)
                 continue
             }
             if ($window.Class -ne 'TWizardForm') { continue }
@@ -125,7 +132,7 @@ try {
                 continue
             }
             $next = $buttons | Where-Object { $_.Text.Replace('&', '').Trim() -in @('Next >', 'I Agree >', 'Install', 'Finish') } | Select-Object -First 1
-            if ($next) { [DelphiSetupUI]::Click($next.Handle) }
+            if ($next) { [DelphiSetupUI]::PressButton($next.Handle) }
         }
     }
     if ($process.ExitCode -ne 0) { throw "Delphi installer exited with $($process.ExitCode)" }
