@@ -1,12 +1,5 @@
-#!/usr/bin/env bash
-# Extract next to this script. Existing SDK trees are never overwritten.
-set -euo pipefail
-if [[ $# != 1 ]]; then
-  echo "Usage: $0 <zip>" >&2
-  exit 2
-fi
-script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-python3 - "$1" "$script_dir" <<'PY'
+#!/usr/bin/env python3
+import argparse
 import hashlib
 import json
 import os
@@ -18,7 +11,10 @@ import sys
 import tempfile
 import zipfile
 
-archive, root = Path(sys.argv[1]).resolve(), Path(sys.argv[2])
+parser = argparse.ArgumentParser(description='Extract VMProtect SDK beside this script without overwriting existing files.')
+parser.add_argument('zip', type=Path, help='SDK ZIP with Examples, Include, and Lib at its root')
+args = parser.parse_args()
+archive, root = args.zip.resolve(), Path(__file__).resolve().parent
 roots = ('Examples', 'Include', 'Lib')
 for name in (*roots, 'extraction-manifest.json'):
     if os.path.lexists(root / name):
@@ -125,4 +121,3 @@ with zipfile.ZipFile(archive) as z, tempfile.TemporaryDirectory(prefix='.extract
         shutil.move(str(stage / name), root / name)
     print(f'Extracted {len(records)} files; {sum("link" in r for r in records.values())} SDK links; removed {len(removed)} executables/aliases.')
     print(f'Archive SHA-256: {manifest["archive_sha256"]}')
-PY

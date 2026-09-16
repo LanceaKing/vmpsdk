@@ -14,12 +14,12 @@
 
 ## 重放提取
 
-需要 Bash、Python 3，以及支持符号链接的文件系统。将 `extract.sh` 放入新目录：
+需要 Python 3 以及支持符号链接的文件系统。将 `extract.py` 放入新目录：
 
 ```bash
 mkdir vmpsdk-extracted
-cp extract.sh vmpsdk-extracted/
-./vmpsdk-extracted/extract.sh /path/to/VMProtectSDK-3.5.0.1249.zip
+cp extract.py vmpsdk-extracted/
+python3 vmpsdk-extracted/extract.py /path/to/VMProtectSDK-3.5.0.1249.zip
 ```
 
 内容写入脚本所在目录，不依赖调用时的工作目录。若 `Examples/`、`Include/`、`Lib/` 或清单已存在，脚本拒绝覆盖。
