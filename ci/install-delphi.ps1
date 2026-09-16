@@ -23,14 +23,100 @@ if ((Get-FileHash $installer -Algorithm SHA256).Hash -ne 'e413ecd2615e24fb3a3a60
 $logs = Join-Path $root '.build/logs/delphi'
 New-Item -ItemType Directory -Force -Path $logs | Out-Null
 $installLog = Join-Path $logs 'install.log'
-# This 78 MB installer is installed in full, not unpacked as a portable compiler.
-$arguments = '/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TYPE=full /TASKS="" /LANG=en /DIR="{0}" /LOG="{1}"' -f $sdk, $installLog
+# The installer's CheckInstallForWin64Bit returns False in silent mode on x64.
+# Drive its native wizard instead. Both downloaded files were SHA-256 checked;
+# NoExeVerify skips the repack's timestamp/version-metadata check, not payload CRCs.
+Add-Type @'
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+public class DelphiSetupWindow {
+    public IntPtr Handle;
+    public uint ProcessId;
+    public string Class;
+    public string Text;
+    public bool Enabled;
+}
+public static class DelphiSetupUI {
+    delegate bool EnumProc(IntPtr handle, IntPtr data);
+    [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc callback, IntPtr data);
+    [DllImport("user32.dll")] static extern bool EnumChildWindows(IntPtr parent, EnumProc callback, IntPtr data);
+    [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr handle);
+    [DllImport("user32.dll")] static extern bool IsWindowEnabled(IntPtr handle);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr handle, out uint pid);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr handle, StringBuilder text, int size);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr handle, StringBuilder text, int size);
+    [DllImport("user32.dll")] static extern bool PostMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] static extern IntPtr SendMessageTimeout(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out IntPtr result);
+    static DelphiSetupWindow Read(IntPtr handle) {
+        uint pid;
+        GetWindowThreadProcessId(handle, out pid);
+        var text = new StringBuilder(4096);
+        var cls = new StringBuilder(256);
+        GetWindowText(handle, text, text.Capacity);
+        GetClassName(handle, cls, cls.Capacity);
+        return new DelphiSetupWindow { Handle = handle, ProcessId = pid, Class = cls.ToString(), Text = text.ToString(), Enabled = IsWindowEnabled(handle) };
+    }
+    public static DelphiSetupWindow[] Windows(IntPtr parent) {
+        var windows = new List<DelphiSetupWindow>();
+        EnumProc callback = (handle, data) => { if (IsWindowVisible(handle)) windows.Add(Read(handle)); return true; };
+        if (parent == IntPtr.Zero) EnumWindows(callback, IntPtr.Zero);
+        else EnumChildWindows(parent, callback, IntPtr.Zero);
+        return windows.ToArray();
+    }
+    public static bool Checked(IntPtr handle) {
+        IntPtr result;
+        if (SendMessageTimeout(handle, 0xF0, IntPtr.Zero, IntPtr.Zero, 2, 1000, out result) == IntPtr.Zero)
+            throw new Exception("Delphi installer control is unresponsive");
+        return result.ToInt64() == 1;
+    }
+    public static void Click(IntPtr handle) {
+        if (!PostMessage(handle, 0xF5, IntPtr.Zero, IntPtr.Zero)) throw new Exception("Cannot click Delphi installer control");
+    }
+}
+'@
+$arguments = '/SP- /NORESTART /NoExeVerify /TYPE=full /TASKS="" /LANG=en /DIR="{0}" /LOG="{1}"' -f $sdk, $installLog
 $process = Start-Process $installer -ArgumentList $arguments -PassThru
 try {
-    if (!$process.WaitForExit(600000)) {
-        $process.Kill($true)
-        $process.WaitForExit()
-        throw 'Delphi installation timed out after 10 minutes'
+    $timer = [Diagnostics.Stopwatch]::StartNew()
+    $lastState = ''
+    while (!$process.WaitForExit(500)) {
+        if ($timer.Elapsed.TotalMinutes -ge 10) { throw 'Delphi installation timed out after 10 minutes' }
+        # Inno Setup launches a .tmp child with the same executable base name.
+        $owners = @(Get-Process -Name $stem -ErrorAction SilentlyContinue | ForEach-Object Id)
+        foreach ($window in [DelphiSetupUI]::Windows([IntPtr]::Zero)) {
+            if ($window.ProcessId -notin $owners) { continue }
+            $controls = @([DelphiSetupUI]::Windows($window.Handle))
+            $state = (@($window) + $controls | ForEach-Object { "$($_.Class): $($_.Text) [enabled=$($_.Enabled)]" }) -join "`n"
+            if ($state -ne $lastState) {
+                Write-Host $state
+                $lastState = $state
+            }
+            $buttons = @($controls | Where-Object { $_.Enabled -and $_.Class -match 'Button$' })
+            if ($window.Class -eq '#32770') {
+                # Confirm only the installer's known warning about a 32-bit IDE on x64.
+                if ($state -notmatch '(?i)64.bit') { throw "Unexpected Delphi installer dialog: $state" }
+                $next = $buttons | Where-Object { $_.Text.Replace('&', '') -eq 'Yes' } | Select-Object -First 1
+                if (!$next) { throw "Missing Yes button in Delphi x64 warning: $state" }
+                [DelphiSetupUI]::Click($next.Handle)
+                continue
+            }
+            if ($window.Class -ne 'TWizardForm') { continue }
+            $accept = $controls | Where-Object { $_.Class -match 'RadioButton$' -and $_.Text.Replace('&', '') -match '^I accept' } | Select-Object -First 1
+            if ($accept -and ![DelphiSetupUI]::Checked($accept.Handle)) {
+                [DelphiSetupUI]::Click($accept.Handle)
+                continue
+            }
+            # Do not launch the IDE or documentation after installing.
+            $launch = $controls | Where-Object { $_.Class -match 'CheckBox$' -and $_.Text -match '(?i)launch|readme|run .*delphi' -and [DelphiSetupUI]::Checked($_.Handle) } | Select-Object -First 1
+            if ($launch) {
+                [DelphiSetupUI]::Click($launch.Handle)
+                continue
+            }
+            $next = $buttons | Where-Object { $_.Text.Replace('&', '').Trim() -in @('Next >', 'Install', 'Finish') } | Select-Object -First 1
+            if ($next) { [DelphiSetupUI]::Click($next.Handle) }
+        }
     }
     if ($process.ExitCode -ne 0) { throw "Delphi installer exited with $($process.ExitCode)" }
     foreach ($file in @('Bin\dcc32.exe', 'Bin\brcc32.exe', 'Bin\rlink32.dll', 'Lib\System.dcu', 'Lib\Forms.dcu')) {
@@ -38,6 +124,7 @@ try {
         if (!(Test-Path $path) -or (Get-Item $path).Length -eq 0) { throw "Missing Delphi toolchain file: $path" }
     }
 } catch {
+    if (!$process.HasExited) { $process.Kill($true); $process.WaitForExit() }
     if (Test-Path $installLog) { Get-Content $installLog -Tail 80 | Write-Host }
     throw
 } finally { $process.Dispose() }
