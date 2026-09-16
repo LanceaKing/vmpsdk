@@ -157,9 +157,6 @@ jobs:
           if ($process.ExitCode -ne 0) { throw "Lazarus installer exited with $($process.ExitCode)" }
       - run: python ci/prepare.py
       - run: ./ci/build-windows.ps1 -Kind '${{ matrix.kind }}' -Arch '${{ matrix.arch }}'
-      - name: Diagnose VB6 compiler startup
-        if: always() && matrix.kind == 'vb6'
-        run: ./ci/probe-vb6.ps1
       - name: Verify source and SDK bytes after building
         if: always()
         run: |
