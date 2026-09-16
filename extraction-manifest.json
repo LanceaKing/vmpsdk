@@ -1,0 +1,942 @@
+{
+  "archive": "VMProtectSDK-3.5.0.1249.zip",
+  "archive_sha256": "4b55d8c61ab7f3f5fb8bb75f32fb1eb35f8dd6441dcf0d9337357322e7f3beb9",
+  "files": {
+    "Examples/Code Markers/BCB/Project1.bpr": {
+      "sha256": "159aeb90d8312faced21545f128e1175f7858edf455a9ebc8d06b15b61b5a97f"
+    },
+    "Examples/Code Markers/BCB/Project1.cpp": {
+      "sha256": "cbee2dab09546ee539d7c1b6e6d788a8c9181044957788b4dfbcd45f6d4977c8"
+    },
+    "Examples/Code Markers/BCB/Project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/BCB/Project1.res": {
+      "sha256": "d979175c5d319a18b6869aab66e7f036702c3b12ae261caeffb5781c51092f50"
+    },
+    "Examples/Code Markers/BCB/Unit1.cpp": {
+      "sha256": "7dc64405f2554a75d1f33cb5686c2b9e409c50feddb08f07f9536f8ffa6cbd3e"
+    },
+    "Examples/Code Markers/BCB/Unit1.dfm": {
+      "sha256": "b0484b042439b2d65940bb249f6ed47d57f7bcbe1ca744899312da19e43f373c"
+    },
+    "Examples/Code Markers/BCB/Unit1.h": {
+      "sha256": "aabf2dc07320d8a344276ad446541291936d413051f12e5bb41e4edeb0c5f2db"
+    },
+    "Examples/Code Markers/BCB/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Code Markers/BCB/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/BCB/VMProtectSDK32.lib": {
+      "sha256": "d33108359139bc8aa2edd07cd09878913bb8ae8733d6da612032968f63cac0d5",
+      "link": "../../../Lib/Windows/VMProtectSDK32.lib"
+    },
+    "Examples/Code Markers/Delphi/Project1.dof": {
+      "sha256": "fcca360abf95da036c46aca01f7180bde9d7d85c929d020a5285a274c4822bbb"
+    },
+    "Examples/Code Markers/Delphi/Project1.dpr": {
+      "sha256": "3859798d9f2b6040c2c83de7c3dc2a2fa8710fdde49ce5bb13d5122e2a1b55b1"
+    },
+    "Examples/Code Markers/Delphi/Project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/Delphi/Project1.res": {
+      "sha256": "649865f23f2dad52f1426f68a62cd6325e1d6956d2a24e94e7955d35c9c0494b"
+    },
+    "Examples/Code Markers/Delphi/Unit1.dfm": {
+      "sha256": "e308c46a00ea2a7bbb7e0c03a0b36f72fceebf4f4410654d63e28923c1508974"
+    },
+    "Examples/Code Markers/Delphi/Unit1.pas": {
+      "sha256": "ce1885abe0628e592850627757dbc96bcbe72fc64ee35059689def84c2c6898c"
+    },
+    "Examples/Code Markers/Delphi/VMProtectSDK.pas": {
+      "sha256": "935c599b59ef4e70eeb3c87a05a6cb7351e0820ecbe4b425b86d47301b1dffa9",
+      "link": "../../../Include/Pascal/VMProtectSDK.pas"
+    },
+    "Examples/Code Markers/Delphi/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/Free Pascal/Project1.pas": {
+      "sha256": "2d27a9fbc0a15579f16e6f0cc224ba2445d732631a52aaa4365b08d54003bbe2"
+    },
+    "Examples/Code Markers/Free Pascal/Resource.rc": {
+      "sha256": "baf821685adf4b9c75bd41460bd9622a665c83d9d53ac6b40d41bab4ea08cf07"
+    },
+    "Examples/Code Markers/Free Pascal/Resource.res": {
+      "sha256": "d07d83ad978cc0ed6a882d46d7be6093b5333c4243dda78e2c08aa156cd987bc"
+    },
+    "Examples/Code Markers/Free Pascal/VMProtectSDK.pas": {
+      "sha256": "935c599b59ef4e70eeb3c87a05a6cb7351e0820ecbe4b425b86d47301b1dffa9",
+      "link": "../../../Include/Pascal/VMProtectSDK.pas"
+    },
+    "Examples/Code Markers/Free Pascal/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/Free Pascal/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Code Markers/Free Pascal/makeit.bat": {
+      "sha256": "2062ace492beeb520c23bc3617c66af0b3b822ad3c6c1baf4e6883ad0a7f879f"
+    },
+    "Examples/Code Markers/Free Pascal/makeit.sh": {
+      "sha256": "1fb56c36d9d46a8cdad55d79839b9ac59a86d15df518800208957afb8a51efe4"
+    },
+    "Examples/Code Markers/GCC/Project1.cpp": {
+      "sha256": "2ce737813b173564e00438e51221c70c1c5fb0d6d8834db74b16fab342c9502b"
+    },
+    "Examples/Code Markers/GCC/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Code Markers/GCC/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Code Markers/GCC/libVMProtectSDK32.so": {
+      "sha256": "5aec2c03bc5e4658f849491bbd665e9c4c3bc5e4007b8258505c21b704aeb9a1",
+      "link": "../../../Lib/Linux/libVMProtectSDK32.so",
+      "added": true
+    },
+    "Examples/Code Markers/GCC/libVMProtectSDK64.so": {
+      "sha256": "f2ea6cf49d93238dba7cafeee24fd9fcf2f4d55c108b9359cd894c4c7f381ea8",
+      "link": "../../../Lib/Linux/libVMProtectSDK64.so",
+      "added": true
+    },
+    "Examples/Code Markers/GCC/makeit.sh": {
+      "sha256": "8e19ce0f8d045ca709ac029631bd913c02ad5b3e95d9d792cd6d18a88eb4a0d2"
+    },
+    "Examples/Code Markers/Lazarus/VMProtectSDK.pas": {
+      "sha256": "935c599b59ef4e70eeb3c87a05a6cb7351e0820ecbe4b425b86d47301b1dffa9",
+      "link": "../../../Include/Pascal/VMProtectSDK.pas"
+    },
+    "Examples/Code Markers/Lazarus/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/Lazarus/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Code Markers/Lazarus/project1.app/Contents/Info.plist": {
+      "sha256": "997696a737a6a2f73dd415bc8c2403835f5473cccddce269d52f689bf028d7dc"
+    },
+    "Examples/Code Markers/Lazarus/project1.app/Contents/PkgInfo": {
+      "sha256": "c89b70392a33d313ca5ea1b45df1e368f86fdb83f653169d20ed84626d267373"
+    },
+    "Examples/Code Markers/Lazarus/project1.app/Contents/Resources/.sentinel": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "Examples/Code Markers/Lazarus/project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/Lazarus/project1.lpi": {
+      "sha256": "52d6481c992384f523e3191ebe9d4ea224af31d09177ffcde6cf56775c431257"
+    },
+    "Examples/Code Markers/Lazarus/project1.lpr": {
+      "sha256": "6e235ec419611d1a9873d5756879badbd333fb4899f19a955d2bd66015f8849d"
+    },
+    "Examples/Code Markers/Lazarus/unit1.lfm": {
+      "sha256": "f3f7b7f0b7aa902a8693199472055d447e62074f38fe8535f2d454c68b4d4e21"
+    },
+    "Examples/Code Markers/Lazarus/unit1.lrs": {
+      "sha256": "07b139f6319b9ddff5e8f9a6cde42c45fa25682731c3ad536c11b7495e25ce6a"
+    },
+    "Examples/Code Markers/Lazarus/unit1.pas": {
+      "sha256": "805ba8ea754e6397852618ccc5d918c2b7ff13aeb2d619d22c442193c8ce4479"
+    },
+    "Examples/Code Markers/MASM/Project1.asm": {
+      "sha256": "14aeca4fc84a458acad8dfdf17dec3225f1c5f643e4fdfe01f83b3b322f2c527"
+    },
+    "Examples/Code Markers/MASM/Project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/MASM/Project1.inc": {
+      "sha256": "16bd1d6c40abc4bce77a50c3c1dea815aa3b424598fc49598470e84408427224"
+    },
+    "Examples/Code Markers/MASM/VMProtectSDK.inc": {
+      "sha256": "9d41f7bf8f220e721e34f54665db9b63caca9ea00fc650f81492736a196f731e",
+      "link": "../../../Include/ASM/VMProtectSDK.inc"
+    },
+    "Examples/Code Markers/MASM/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/MASM/VMProtectSDK32.lib": {
+      "sha256": "d33108359139bc8aa2edd07cd09878913bb8ae8733d6da612032968f63cac0d5",
+      "link": "../../../Lib/Windows/VMProtectSDK32.lib"
+    },
+    "Examples/Code Markers/MASM/VMProtectSDK64.dll": {
+      "sha256": "3b2dd1192f4dd56986fa414b9626c0d298edfec9b9c597ec6161512d9452606a",
+      "link": "../../../Lib/Windows/VMProtectSDK64.dll"
+    },
+    "Examples/Code Markers/MASM/VMProtectSDK64.lib": {
+      "sha256": "db02a5a1c75140a89ce904cc960743ad775be8d70c144389d88dd590e3a29203",
+      "link": "../../../Lib/Windows/VMProtectSDK64.lib"
+    },
+    "Examples/Code Markers/MASM/makeit.bat": {
+      "sha256": "655f241e2cfa322de729c415b5c9c23103b240fdc51787155bf68f1dce39b3ce"
+    },
+    "Examples/Code Markers/MSVC/Project1.cpp": {
+      "sha256": "e71347b15cc4f90e4197ba31b778fa59a66a580f9ccb982dea284d59934a10ee"
+    },
+    "Examples/Code Markers/MSVC/Project1.sln": {
+      "sha256": "f89dbe0fb20eba54f515445145200d66b2f5e0636b03a56b9a9a108b6d93ea1b"
+    },
+    "Examples/Code Markers/MSVC/Project1.vcxproj": {
+      "sha256": "21ce6f9c53cdfcc4058ecc89675575bb8efd1a392985d21a3afbe0dc20eba37b"
+    },
+    "Examples/Code Markers/MSVC/Project1.vcxproj.filters": {
+      "sha256": "b2482763a90c183b52efcb988f00f09c130bce48c0d08390a14f434673685896"
+    },
+    "Examples/Code Markers/MSVC/Resource.rc": {
+      "sha256": "21c399050548fe95812764071e85fdd304080065848e64e98df571dfa4e477d4"
+    },
+    "Examples/Code Markers/MSVC/StdAfx.cpp": {
+      "sha256": "11042ff34c0838a5bce544cd490e20cc0e22c0647eb3a571736a9e320f9784c9"
+    },
+    "Examples/Code Markers/MSVC/StdAfx.h": {
+      "sha256": "b9fd80a6f94eb84a2f97cc4658ebdee38038dd6c106b0438f7e69c286b7a3a70"
+    },
+    "Examples/Code Markers/MSVC/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Code Markers/MSVC/VMProtectSDK32.lib": {
+      "sha256": "d33108359139bc8aa2edd07cd09878913bb8ae8733d6da612032968f63cac0d5",
+      "link": "../../../Lib/Windows/VMProtectSDK32.lib"
+    },
+    "Examples/Code Markers/MSVC/VMProtectSDK64.lib": {
+      "sha256": "db02a5a1c75140a89ce904cc960743ad775be8d70c144389d88dd590e3a29203",
+      "link": "../../../Lib/Windows/VMProtectSDK64.lib"
+    },
+    "Examples/Code Markers/MSVC/bin/Project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/MSVC/bin/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/MSVC/bin/VMProtectSDK64.dll": {
+      "sha256": "3b2dd1192f4dd56986fa414b9626c0d298edfec9b9c597ec6161512d9452606a",
+      "link": "../../../../Lib/Windows/VMProtectSDK64.dll"
+    },
+    "Examples/Code Markers/MSVC/resource.h": {
+      "sha256": "dcc70d19a9604934fbd5b65be3683145224fcbea46f7cf1ee2dcb1e2ecd17d2e"
+    },
+    "Examples/Code Markers/MinGW/Project1.cpp": {
+      "sha256": "e94cc24a1849ce4811f2be0b55424e16fa76aad0e5b0a77f4750fcf2d31dfb95"
+    },
+    "Examples/Code Markers/MinGW/Project1.dev": {
+      "sha256": "96085407bde2de31302149e040b478f654c52c961c84ab533aa32d147dc2cd31"
+    },
+    "Examples/Code Markers/MinGW/Project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/MinGW/Project1_private.h": {
+      "sha256": "0eae78f2e25eb971777b7afd4bea9ae80b459e0e082a8323263280c8af60a35d"
+    },
+    "Examples/Code Markers/MinGW/Project1_private.rc": {
+      "sha256": "54539649c737d2c291d2b33527e1401509ac46ba1c6ee7c7e29daedda0e739ad"
+    },
+    "Examples/Code Markers/MinGW/Resource.rc": {
+      "sha256": "37075c42fb9e85ad9302cc945c67611aebcab6572eed36ca5fdb85687ef97361"
+    },
+    "Examples/Code Markers/MinGW/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Code Markers/MinGW/VMProtectSDK32.a": {
+      "sha256": "a371b040ca5c5a448ccb068b325e0a9ed2a9f9fc70e6aed421c1c0462a3f035e",
+      "link": "../../../Lib/Windows/MinGW/VMProtectSDK32.a"
+    },
+    "Examples/Code Markers/MinGW/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/MinGW/makeit.bat": {
+      "sha256": "8202e0c42afdab926173409d347f6683dcc6e24eb0fc8cafdcbec1d267f1a59b"
+    },
+    "Examples/Code Markers/MinGW/resource.h": {
+      "sha256": "45fa77fbec898a6f70f77315c4faa0c3196b1fedc72a2813e360cfae538cdf46"
+    },
+    "Examples/Code Markers/Net/App.config": {
+      "sha256": "7d9cb382e601cfdbdfac46341b7e84fbe3ae6e40e1634e8bba4ed385d0e0f428"
+    },
+    "Examples/Code Markers/Net/Form1.Designer.cs": {
+      "sha256": "4b634173d4971913e3639d8451c3b515150fdef72c2947c829c56a171e9babd9"
+    },
+    "Examples/Code Markers/Net/Form1.cs": {
+      "sha256": "0eadb6aee57714a31004ff1d269d9f58548ed2757736aafee51d5e2a74d54877"
+    },
+    "Examples/Code Markers/Net/Form1.resx": {
+      "sha256": "4363cd7d5b8671c72442ce1a1bfc10d64ebd24b2d718b54bd4fcd025e4967298"
+    },
+    "Examples/Code Markers/Net/Program.cs": {
+      "sha256": "0962b639efe2139234bf650aae55c4b1b4881a3d053fcf08a3c727e579ccf025"
+    },
+    "Examples/Code Markers/Net/Project1.csproj": {
+      "sha256": "c3b2905fb27f390d4f6f4017e5bd93c71005492c9055dc7a9e91190330e1284d"
+    },
+    "Examples/Code Markers/Net/Properties/AssemblyInfo.cs": {
+      "sha256": "21ec4dad5cf713d62ef3313ef36d6b29a8ba34d4a7f9e00c7b7131c093436b4c"
+    },
+    "Examples/Code Markers/Net/bin/VMProtect.SDK.dll": {
+      "sha256": "a31c2e1726beb95603d6c2d06db20a841eb2dfa0e9938597496b023c786453b8",
+      "link": "../../../../Lib/Windows/Net/VMProtect.SDK.dll"
+    },
+    "Examples/Code Markers/VB6/Form1.frm": {
+      "sha256": "b2f7ff7c5401d42629534f0bbf6af590012ffe1fc01f1ef17fb5cbe104985a50"
+    },
+    "Examples/Code Markers/VB6/Project1.exe.vmp": {
+      "sha256": "50f1d138f273381a9f20e5de3ae21e863196b632baa6953e54f4b2316569c535"
+    },
+    "Examples/Code Markers/VB6/Project1.vbp": {
+      "sha256": "68b7f23e3ecfa8c7f6a39f053cb1868833eecbd66f692bb790efb022f9184d77"
+    },
+    "Examples/Code Markers/VB6/Project1.vbw": {
+      "sha256": "e2003503729dd9ff3f7f0e8eea45b04b08983d1e42d89e62652618471a1bd6bc"
+    },
+    "Examples/Code Markers/VB6/VMProtectSDK.bas": {
+      "sha256": "d2c1334fd893071b3b7e42d0817cbd37310c831af2af12ee1f94e8f654eff403",
+      "link": "../../../Include/VB6/VMProtectSDK.bas"
+    },
+    "Examples/Code Markers/VB6/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Code Markers/Xcode/Project1.xcodeproj/project.pbxproj": {
+      "sha256": "54062521d3a59780771fe9f9ce29902d82aa708bd8d297d0a8067854540941aa"
+    },
+    "Examples/Code Markers/Xcode/Project1.xcodeproj/project.xcworkspace/contents.xcworkspacedata": {
+      "sha256": "f07812c22099316c6d6c262256ea0f3a4d233ef115218cdcbc02875b6e87f8cc"
+    },
+    "Examples/Code Markers/Xcode/Project1/AppDelegate.h": {
+      "sha256": "992715ee2241cf0a7ee04e41ce9f3e3ac3ccfc80bcedea1f580c516dcbc96d38"
+    },
+    "Examples/Code Markers/Xcode/Project1/AppDelegate.m": {
+      "sha256": "1747002f5cb077b18bb7bd42eb60b605981ae9bb019b5daa5596f974c429f0b5"
+    },
+    "Examples/Code Markers/Xcode/Project1/Base.lproj/MainMenu.xib": {
+      "sha256": "cf34910a34492d9688bb74f02e812a2c4791ec0fae164f55b53f63f7b437d629"
+    },
+    "Examples/Code Markers/Xcode/Project1/Images.xcassets/AppIcon.appiconset/Contents.json": {
+      "sha256": "b35fbadc602a2bf35ba866a50151858ec25fdaa72a386ee5614aceb208238aa8"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1-Info.plist": {
+      "sha256": "1d3f2475f44e34f5bb47f54f19acb076753e2ca22e13f4286358fcb7d692f4bb"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1-Prefix.pch": {
+      "sha256": "a800b4a953acaf2351bd72d07a74bc80750d70897244bf9810379a8edc9be828"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/Info.plist": {
+      "sha256": "6c49d90d1e34916d492c60bd5aebae6c2e46257e0515d45ae94fea01135e975f"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/MacOS/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../../../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/PkgInfo": {
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/Resources/Base.lproj/MainMenu.nib": {
+      "sha256": "50a5ffbaa783b6e97fd5d1eb13241cd3236c93a32822799f9b19e5dbf66660e6"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/Resources/en.lproj/Credits.rtf": {
+      "sha256": "f2567d456578b1e500092eea27fa3da7c7df9bfcb915fd7575e3b7cbd6ce3a7d"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/Resources/en.lproj/InfoPlist.strings": {
+      "sha256": "e27cacbf4f9358e9ad2056696e8c4cc4ebffd80d3030eb2c2fa94e6d57dca0f2"
+    },
+    "Examples/Code Markers/Xcode/Project1/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Code Markers/Xcode/Project1/en.lproj/Credits.rtf": {
+      "sha256": "f2567d456578b1e500092eea27fa3da7c7df9bfcb915fd7575e3b7cbd6ce3a7d"
+    },
+    "Examples/Code Markers/Xcode/Project1/en.lproj/InfoPlist.strings": {
+      "sha256": "2a7f77dd390052d5407e2b494b173a9fc6b671ab757d25b79ed23352361dce5c"
+    },
+    "Examples/Code Markers/Xcode/Project1/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Code Markers/Xcode/Project1/main.m": {
+      "sha256": "07a6d43e2e91d27274fc7140363848599c71aedd5333fe478555664da8ba5b23"
+    },
+    "Examples/Code Markers/Xcode/Project1Tests/Project1Tests-Info.plist": {
+      "sha256": "c1d48a45e17d64057746317060e6d86d00358eaeb4b7b245e4a81a6ee380b55a"
+    },
+    "Examples/Code Markers/Xcode/Project1Tests/Project1Tests.m": {
+      "sha256": "7ffa37c3ea82e0f5dddf1fc63308b6b437d07306aba2f6049f6f89c91d26d090"
+    },
+    "Examples/Code Markers/Xcode/Project1Tests/en.lproj/InfoPlist.strings": {
+      "sha256": "2a7f77dd390052d5407e2b494b173a9fc6b671ab757d25b79ed23352361dce5c"
+    },
+    "Examples/KeyGen/DLL/Delphi/KeyGenExample.dpr": {
+      "sha256": "42ec26a4ba23fbacfd831f3e8807184e443c34e8c5afbe2ef9e9c62925175d24"
+    },
+    "Examples/KeyGen/DLL/Lib/KeyGen32.dll": {
+      "sha256": "f2f7756ee63221a0d65746a74e4ddc4d8044d01212d8142a26d79ca0acec49be"
+    },
+    "Examples/KeyGen/DLL/Lib/KeyGen32.lib": {
+      "sha256": "3964724f3a06b1a1507ddf33595b3fb13ff22f3c484be438af7534f6175c5568"
+    },
+    "Examples/KeyGen/DLL/Lib/KeyGen64.dll": {
+      "sha256": "36cfd91644f4bf6c28fb1d930c7ace03803b35002da5e7d4a6b756b20c97df0f"
+    },
+    "Examples/KeyGen/DLL/Lib/KeyGen64.lib": {
+      "sha256": "666a61c98bfa6bd4812130c01f4b9f2fdd71a07818713c5bd1a967dee92bf62b"
+    },
+    "Examples/KeyGen/DLL/Lib/KeyGenAPI.h": {
+      "sha256": "115c0be93e66b1620e0dd338370c9de973b20726886b93146aabb7ed61ddab12"
+    },
+    "Examples/KeyGen/DLL/MSVC/KeyGenAPI.h": {
+      "sha256": "81d680d18ad315eb7c8e3f8ea7e51cfaed9cd5cc711f43dc8b1c22d366d28ab2"
+    },
+    "Examples/KeyGen/DLL/MSVC/KeyGenExample.cpp": {
+      "sha256": "43320c23a3861dbbb9c2f1407b35d16c0ff134974a3d76c72ea548c8291bc699"
+    },
+    "Examples/KeyGen/DLL/MSVC/KeyGenExample.sln": {
+      "sha256": "8ffde88861db97dfc5062a192e3f6b09dd025316ef2f4993679b76dd10af379e"
+    },
+    "Examples/KeyGen/DLL/MSVC/KeyGenExample.vcproj": {
+      "sha256": "a5d418df9f9ad24b75a8c9c13913d3db4d642abb5e03fd65481b40f66fd32b33"
+    },
+    "Examples/KeyGen/DLL/MSVC/stdafx.cpp": {
+      "sha256": "d23184016d3d66ed9aa233ecb322ba00fbbcecb217c07a3c38f0c050ef8a7c99"
+    },
+    "Examples/KeyGen/DLL/MSVC/stdafx.h": {
+      "sha256": "c3927a6b3c740fe5615596e2661fcca13b2e744d2381b71b594672b18e97cafe"
+    },
+    "Examples/KeyGen/DLL/MSVC/targetver.h": {
+      "sha256": "bad5ca557eb99c1e3a43d3098fe0fef8def7228b724dcff3a72143f3717a8eb8"
+    },
+    "Examples/KeyGen/DLL/Sources/KeyGen.cpp": {
+      "sha256": "ac969f212d3e60e23d5b6d89b78ed24616a1acf294c81af2a8830a112e1b6da0"
+    },
+    "Examples/KeyGen/DLL/Sources/KeyGen.def": {
+      "sha256": "8a32ebf94592fd5926bdf1d91652913a604f3546434f028f815492dcb2cfd51f"
+    },
+    "Examples/KeyGen/DLL/Sources/KeyGen.rc": {
+      "sha256": "40436872123ee43d3919ee939b2818211b0ead4665027c76ed23cb5e2a1e8aa9"
+    },
+    "Examples/KeyGen/DLL/Sources/KeyGen.sln": {
+      "sha256": "90a54af9f1f0296c95fac2aa9abaefea2c209d04bc70c73ea7a09f13e8fda704"
+    },
+    "Examples/KeyGen/DLL/Sources/KeyGen.vcproj": {
+      "sha256": "e71a2f7536a42aeda0b236599a2be99fbdf7cc031bf1f6e057c7333a20d3286d"
+    },
+    "Examples/KeyGen/DLL/Sources/KeyGenAPI.h": {
+      "sha256": "a3ed3cf0a617e2350f2833b98c6a0dec048925655b9be79720ab8646ae3bdd3d"
+    },
+    "Examples/KeyGen/DLL/Sources/b64.cpp": {
+      "sha256": "7045296851881d05833f91d589f1aa275748682258b2f880c7b058df7a95917b"
+    },
+    "Examples/KeyGen/DLL/Sources/b64.h": {
+      "sha256": "19142650a0f74478c64916044b671cca75ae42edbbcfcd184269ac7d0e56632a"
+    },
+    "Examples/KeyGen/DLL/Sources/resource.h": {
+      "sha256": "e2a5d407d74299c364e96dbcf356e4106423f38e76ea0f5c7dd52d59570c1bc0"
+    },
+    "Examples/KeyGen/DLL/Sources/sha-1.cpp": {
+      "sha256": "d0b3de85b088c9693efde6cfada151b3ab06b9322180e84a906580d08b253515"
+    },
+    "Examples/KeyGen/DLL/Sources/sha-1.h": {
+      "sha256": "fcce8c129b1d7e234b57dbaaf100e2cb3a9c2d32ab142768e39a5bc2bad3de05"
+    },
+    "Examples/KeyGen/DLL/Sources/sshbn.cpp": {
+      "sha256": "6dfae3e9c96dc4c3c47ca1b8db03647cea8810633ae067d03e0f5c923ba40d02"
+    },
+    "Examples/KeyGen/DLL/Sources/sshbn.h": {
+      "sha256": "01b3a66510575a6f4f27947f966f2f983de80defaf944485c110a3ee7f189ccc"
+    },
+    "Examples/KeyGen/DLL/Sources/stdafx.cpp": {
+      "sha256": "ef4597a2058c6fc7ba90db0de77025469d56612f23f6bbeec9da21e136a50717"
+    },
+    "Examples/KeyGen/DLL/Sources/stdafx.h": {
+      "sha256": "b065d2603c2cb38bf00b352d406621d9ee9f9cae3b5f9cd772e24bf34377ef32"
+    },
+    "Examples/KeyGen/Net/KeyGen/AlorithmRSA.cs": {
+      "sha256": "744286c0e1bbaed27bb316dd36a37d015ac9d9280d8e39429caec411aa0366c5"
+    },
+    "Examples/KeyGen/Net/KeyGen/BigInteger.cs": {
+      "sha256": "66ac4d819622d592f834ef41168647f12f4ab89578363059954f4f5522c0dacd"
+    },
+    "Examples/KeyGen/Net/KeyGen/Generator.cs": {
+      "sha256": "296d4137093d7219832993af46282d64afdd5a129c10ad1d95bed6f2d4c0d137"
+    },
+    "Examples/KeyGen/Net/KeyGen/KeyGen.csproj": {
+      "sha256": "1d6ab2dbe2e54870cbffff850e118aef2514a3a72dba31137370a465ca4e618c"
+    },
+    "Examples/KeyGen/Net/KeyGen/Properties/AssemblyInfo.cs": {
+      "sha256": "41ccc5d36c9f998cd42a26c4eb6d9315cb7cbc77a7ab7c05aaedd087cd26a228"
+    },
+    "Examples/KeyGen/Net/KeyGen/app.config": {
+      "sha256": "8567f33dba5f913093548577c8eb64e6e241093a6fa69ed672f7f34cdc10cfc8"
+    },
+    "Examples/KeyGen/Net/KeyGenNet.sln": {
+      "sha256": "f9254ede830661ecfd3f258526c90b4fcffcd69b078ffb631dc0c0a9aca0d940"
+    },
+    "Examples/KeyGen/Net/Usage/Program.cs": {
+      "sha256": "9ab5329169713cc52dc010fff97f28e0b88ac775899f5def24dce575bf0d63f8"
+    },
+    "Examples/KeyGen/Net/Usage/Properties/AssemblyInfo.cs": {
+      "sha256": "78a484e445546e511e9cde1f74be9e268f700294ffda755d22c30654293838e9"
+    },
+    "Examples/KeyGen/Net/Usage/Usage.csproj": {
+      "sha256": "a1247dc89d13755d78e790330796160aa25cd367b2ff1f762aca8d6233f42e57"
+    },
+    "Examples/KeyGen/Net/Usage/app.config": {
+      "sha256": "bc22384394191e57727bee7136fffd077ce8b44b15e3696f2d0e4d2910620048"
+    },
+    "Examples/KeyGen/PHP/keygen.php": {
+      "sha256": "4981f7f7568d18016d89e6ebf0d38c5bcbe7f197d212cc4370edd197438f335e"
+    },
+    "Examples/Licensing/BCB/TestApp.cbproj": {
+      "sha256": "30000994504ed73c734f1e3bf28dbb5acfc886ac40f660ebafe5a932525a8c96"
+    },
+    "Examples/Licensing/BCB/TestApp.cpp": {
+      "sha256": "b0cbf24666a698ab6389cd710ca45989bd82409f83983c3673762bd5f7ea67a3"
+    },
+    "Examples/Licensing/BCB/TestApp.exe.vmp": {
+      "sha256": "d0738b66c4fd955e9b9fa5e06b3ac541e1e37e5e4af24939391242a4ed873515"
+    },
+    "Examples/Licensing/BCB/TestApp.map": {
+      "sha256": "95878d6e5f2006270547e3a55864e8b8a364a94e367cf39da25664c9efb2161e"
+    },
+    "Examples/Licensing/BCB/TestApp.res": {
+      "sha256": "d2a39b36d2ea96c650e015da5666045773d285dd610b66f32f783b66ca12ede5"
+    },
+    "Examples/Licensing/BCB/Unit1.cpp": {
+      "sha256": "e1d4de9491ab0f1755aeb873da899c8ba36207795f9d08fb0998944b050ab3f4"
+    },
+    "Examples/Licensing/BCB/Unit1.dfm": {
+      "sha256": "147606256184bf7a6b015fbc06a6ac1202a7f80e44c263220a589c5b8202fe13"
+    },
+    "Examples/Licensing/BCB/Unit1.h": {
+      "sha256": "62bfc6fe615a6f082b8680b3542e7ee4443dbd3b82695b29c22400756aec89bd"
+    },
+    "Examples/Licensing/DDK/MAKEFILE": {
+      "sha256": "0350066fc7cd89f3db46317311dec536364555c3d60a9c39226cac5a7e53531e"
+    },
+    "Examples/Licensing/DDK/SOURCES": {
+      "sha256": "b9bc55cd4546f643d17a7a12bc22eb0baf690e0b8875c2e3d51fe51db881c037"
+    },
+    "Examples/Licensing/DDK/TestApp.c": {
+      "sha256": "6d17b5d6aba656cdc264d62740c6fa400762efc0f89b5241ef0929b88beadeea"
+    },
+    "Examples/Licensing/DDK/VMProtectDDK.h": {
+      "sha256": "e98615fe5506da30061c63a3c6a3b1dfd23892f783d1aa6a9e4fe891a59f2283",
+      "link": "../../../Include/C/VMProtectDDK.h"
+    },
+    "Examples/Licensing/DDK/VMProtectDDK32.lib": {
+      "sha256": "28ee72f0cb130dfe2597cb8f85a9994522e9ab3076740770bd6b59978c741a56",
+      "link": "../../../Lib/Windows/VMProtectDDK32.lib"
+    },
+    "Examples/Licensing/DDK/VMProtectDDK64.lib": {
+      "sha256": "d3decd7d5f6447f26319ab4949000cf93b8fea62c1b00ff245dcc147e2f88052",
+      "link": "../../../Lib/Windows/VMProtectDDK64.lib"
+    },
+    "Examples/Licensing/DDK/bin/i386/TestApp.sys.vmp": {
+      "sha256": "b63086d2ac58f3f25a268eca486133ee1e369ff960e2dfabe5fcf3c4c9019ccb"
+    },
+    "Examples/Licensing/DDK/make.bat": {
+      "sha256": "fe8ca43b8b675828a8718c8f9816fda173c32256b477dd5ac8ca7399dd4e5116"
+    },
+    "Examples/Licensing/Delphi/TestApp.dpr": {
+      "sha256": "eac1a1ecc75b521da0f391828b3681772b573c00a26f3f6608a0f43ea41ae03b"
+    },
+    "Examples/Licensing/Delphi/TestApp.dproj": {
+      "sha256": "dd74cc680b0faf11df6d9372dfcbcc2aa7d9f0f394c7b66773039219a8065925"
+    },
+    "Examples/Licensing/Delphi/TestApp.exe.vmp": {
+      "sha256": "4c8b398503e15595bc5e859ee3b114f621954870cd8e792b090a5cf2b47e6ff3"
+    },
+    "Examples/Licensing/Delphi/TestApp.map": {
+      "sha256": "d030cda2666cc8dc3001ad66bdfe1d8f860789fd36666fa110785916442740f9"
+    },
+    "Examples/Licensing/Delphi/Unit1.dfm": {
+      "sha256": "fa4db7abb23943032ca3a9ba8ea094be8fe0c4849d243fa49725bfd02a212828"
+    },
+    "Examples/Licensing/Delphi/Unit1.pas": {
+      "sha256": "2ab8683e0b7830a964bbb0d7fd1f51b7f4ce638e93986bc86e93b20b8b8d0aa9"
+    },
+    "Examples/Licensing/Delphi/VMProtectSDK.pas": {
+      "sha256": "935c599b59ef4e70eeb3c87a05a6cb7351e0820ecbe4b425b86d47301b1dffa9",
+      "link": "../../../Include/Pascal/VMProtectSDK.pas"
+    },
+    "Examples/Licensing/Delphi/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Licensing/MSVC/TestApp.cpp": {
+      "sha256": "8aaf6a441d02b76568ad91e8b85ba007c772ae2c14090b1cc1f569c8522ba4a5"
+    },
+    "Examples/Licensing/MSVC/TestApp.rc": {
+      "sha256": "07cc4993dd7d391c8799881ba783d304b6a147a11471bcc61f33ec2b00a470f4"
+    },
+    "Examples/Licensing/MSVC/TestApp.sln": {
+      "sha256": "d5f97ffd30ae1374ba54121dfeb177917a4649ff9db80926b5044595837ce107"
+    },
+    "Examples/Licensing/MSVC/TestApp.vcxproj": {
+      "sha256": "21a3b1fc21ea9cdd168e87298d58fba70476e2094e3bf58a5a63a1735ac19415"
+    },
+    "Examples/Licensing/MSVC/TestApp.vcxproj.filters": {
+      "sha256": "46ada655cf451d1baa68e08d529ed0e15a0787236c50ccc12ede1937c12f76ce"
+    },
+    "Examples/Licensing/MSVC/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Licensing/MSVC/VMProtectSDK32.lib": {
+      "sha256": "d33108359139bc8aa2edd07cd09878913bb8ae8733d6da612032968f63cac0d5",
+      "link": "../../../Lib/Windows/VMProtectSDK32.lib"
+    },
+    "Examples/Licensing/MSVC/VMProtectSDK64.lib": {
+      "sha256": "db02a5a1c75140a89ce904cc960743ad775be8d70c144389d88dd590e3a29203",
+      "link": "../../../Lib/Windows/VMProtectSDK64.lib"
+    },
+    "Examples/Licensing/MSVC/bin/TestApp.exe.vmp": {
+      "sha256": "9a4de398129e940f2dbb735260b9d1b31cc5045f2ba6cd375f723a81c13acc04"
+    },
+    "Examples/Licensing/MSVC/bin/TestApp.map": {
+      "sha256": "3156299daa688ce50aa56de9c8486cfd37ce4d3715abe25c7d8a312bdfd834f3"
+    },
+    "Examples/Licensing/MSVC/bin/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Licensing/MSVC/bin/VMProtectSDK64.dll": {
+      "sha256": "3b2dd1192f4dd56986fa414b9626c0d298edfec9b9c597ec6161512d9452606a",
+      "link": "../../../../Lib/Windows/VMProtectSDK64.dll"
+    },
+    "Examples/Licensing/MSVC/resource.h": {
+      "sha256": "be276546e4707df7945f32244edbffc9d3867365344a208580bec2c6c2260188"
+    },
+    "Examples/Licensing/MSVC/stdafx.cpp": {
+      "sha256": "7984b34b315b31cb55894b0e97f3d8176d2e7cb321755605afbab7654911773d"
+    },
+    "Examples/Licensing/MSVC/stdafx.h": {
+      "sha256": "ca63f206b8b2e44afb5228df0e14d85e55a4a65933fc240ccb0ad9a01de0401b"
+    },
+    "Examples/Licensing/Net/Form1.Designer.cs": {
+      "sha256": "44b0daf302cd08dfc7f84deb642beb3cd8aecc9d5234398947e274c69f7f76cb"
+    },
+    "Examples/Licensing/Net/Form1.cs": {
+      "sha256": "f783c1c7430f515f88f4e4fc74967a4ef1892dbcf2225d7fe0c508b6b5eff42a"
+    },
+    "Examples/Licensing/Net/Form1.resx": {
+      "sha256": "7263987e93baf4088e047f82d73a78d628e18bed376a1dad0797a8b87d64b068"
+    },
+    "Examples/Licensing/Net/Program.cs": {
+      "sha256": "d80b1a72451c1e6f8001c1febf33fe5bd25e65c6c36718cf266e5dc263ae2ad1"
+    },
+    "Examples/Licensing/Net/Properties/AssemblyInfo.cs": {
+      "sha256": "07ea7af5d9c4b57e1cb65f3f8556b5d1d4edb71a6eb5d3f998444b4e809349b4"
+    },
+    "Examples/Licensing/Net/Properties/Resources.Designer.cs": {
+      "sha256": "665bc730e6e2528c01381064c4c06251a487096bb8df7712c3d34a90824d6e74"
+    },
+    "Examples/Licensing/Net/Properties/Resources.resx": {
+      "sha256": "66b5ebd1b0fc73f041ba669ce2184f6f471d5e3524efa34ca31233e9f5395262"
+    },
+    "Examples/Licensing/Net/Properties/Settings.Designer.cs": {
+      "sha256": "3d087aac697ccbd34bcec6fa52c8c9cfdfb3d8b2d8d672a614001db00120b6c5"
+    },
+    "Examples/Licensing/Net/Properties/Settings.settings": {
+      "sha256": "f6a4290723520caddd934b8800319c7ca6cc7eeab647059ec89b7a13b1513265"
+    },
+    "Examples/Licensing/Net/TestApp.csproj": {
+      "sha256": "ba431509a06e2fb8f5024682cff0334fcf3c8e1767d39c7db80ebaf48c6d10ae"
+    },
+    "Examples/Licensing/Net/TestApp.exe.vmp": {
+      "sha256": "c97d7581ea84c053a60e1c7b09f652659f51617b0a58f78725a8ee5864f37644"
+    },
+    "Examples/Licensing/Net/bin/TestApp.exe.vmp": {
+      "sha256": "33f649ac802b38ca58f34c0c6f03fec3672099d5c8938d6b26720e7a0c81ea26"
+    },
+    "Examples/Licensing/Net/bin/VMProtect.SDK.dll": {
+      "sha256": "a31c2e1726beb95603d6c2d06db20a841eb2dfa0e9938597496b023c786453b8",
+      "link": "../../../../Lib/Windows/Net/VMProtect.SDK.dll"
+    },
+    "Examples/Licensing/VB6/Form1.frm": {
+      "sha256": "72f3f0834bdf15fa5e97dcc98ec01ae4faf841a5c964a187f4090b7e72bf14f7"
+    },
+    "Examples/Licensing/VB6/TestApp.exe.vmp": {
+      "sha256": "c97d7581ea84c053a60e1c7b09f652659f51617b0a58f78725a8ee5864f37644"
+    },
+    "Examples/Licensing/VB6/TestApp.vbp": {
+      "sha256": "7c175262f356ed4ff74b802dac6a39c8d7b6a8513f28ff1add363cb75df8274f"
+    },
+    "Examples/Licensing/VB6/TestApp.vbw": {
+      "sha256": "d696bd96ac86ddb3c7fc797cd6281e1372684e18a9c5efc632f480e961ff29ae"
+    },
+    "Examples/Licensing/VB6/VMProtectSDK.bas": {
+      "sha256": "d2c1334fd893071b3b7e42d0817cbd37310c831af2af12ee1f94e8f654eff403",
+      "link": "../../../Include/VB6/VMProtectSDK.bas"
+    },
+    "Examples/Licensing/VB6/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33",
+      "link": "../../../Lib/Windows/VMProtectSDK32.dll"
+    },
+    "Examples/Licensing/Xcode/AppDelegate.h": {
+      "sha256": "c3ded7a53d22e7f856ca953a2c6c4a6d20e92b0ca9818266e0eac6332fe90b28"
+    },
+    "Examples/Licensing/Xcode/AppDelegate.mm": {
+      "sha256": "276ac62ea36d5cc429c661dacf45ad7992338876884b1b0e05e6e98b3bf2ecab"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app.vmp": {
+      "sha256": "74e8fba8ae5af3fdf0d362a004b0ef0a67244713c46418984fce974a840d2083"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/Info.plist": {
+      "sha256": "de8ee1845f67374ca43aa5c4ec249c24697a78d1f9a84d5e2ffb29d9a0f2c7b7"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/MacOS/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../../../../../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/PkgInfo": {
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/Resources/en.lproj/Credits.rtf": {
+      "sha256": "00be0708f1551e4184d1b6c7bb54a81dd4b3236bfe8d4ba13e49ac9221787ac4"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/Resources/en.lproj/InfoPlist.strings": {
+      "sha256": "e27cacbf4f9358e9ad2056696e8c4cc4ebffd80d3030eb2c2fa94e6d57dca0f2"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/Resources/en.lproj/MainMenu.nib": {
+      "sha256": "a32bea9a2589b1ce954648483c988c51ee9c800b2545be3e287c17d3632a2ccf"
+    },
+    "Examples/Licensing/Xcode/VMProtect Licensing Test-Info.plist": {
+      "sha256": "536668bca1fb24cab8af74116ea753b041aacd1f61851da5ea853805f93d814d"
+    },
+    "Examples/Licensing/Xcode/VMProtect Licensing Test-Prefix.pch": {
+      "sha256": "3a48c1828d8385003447c835daf8fc0361692cf8eda1e2bf71a3e8d9c3cfc71f"
+    },
+    "Examples/Licensing/Xcode/VMProtect Licensing Test.xcodeproj/project.pbxproj": {
+      "sha256": "58817ac0792b3f5d4d26d4e96011314e044a346a9b6628b843bbfe8e52d56b66"
+    },
+    "Examples/Licensing/Xcode/VMProtect Licensing Test.xcodeproj/project.xcworkspace/contents.xcworkspacedata": {
+      "sha256": "0a034b7b5a28b255efdb6688f11126c60536dd53336256c942cfa80a97a1124b"
+    },
+    "Examples/Licensing/Xcode/VMProtectLicense.ini": {
+      "sha256": "5ea757aa7e8df875c9dd7ebfdeff50b8086ad1d0f71c0e6f6aee48980d5f2bfa"
+    },
+    "Examples/Licensing/Xcode/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f",
+      "link": "../../../Include/C/VMProtectSDK.h"
+    },
+    "Examples/Licensing/Xcode/en.lproj/Credits.rtf": {
+      "sha256": "00be0708f1551e4184d1b6c7bb54a81dd4b3236bfe8d4ba13e49ac9221787ac4"
+    },
+    "Examples/Licensing/Xcode/en.lproj/InfoPlist.strings": {
+      "sha256": "2a7f77dd390052d5407e2b494b173a9fc6b671ab757d25b79ed23352361dce5c"
+    },
+    "Examples/Licensing/Xcode/en.lproj/MainMenu.xib": {
+      "sha256": "20d53d1fd2101506e230c99e8f45719881690a154da817af6da1b73357245026"
+    },
+    "Examples/Licensing/Xcode/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e",
+      "link": "../../../Lib/OSX/libVMProtectSDK.dylib"
+    },
+    "Examples/Licensing/Xcode/main.m": {
+      "sha256": "1ed2881b24fce2892811bda260f5b4152fa2a723a83da149359270d61eb28263"
+    },
+    "Examples/Scripts/Delphi Resources/Project1.exe.vmp": {
+      "sha256": "52fc0fc9ca0e0656d4e42679ca3000a5355c93263feec7ed42728e4fbf3841b6"
+    },
+    "Examples/Scripts/Environment Variables/Project1.exe.vmp": {
+      "sha256": "4ccaf3279c3877e892d92e4bb445fc0aea379813c941a6b2d33a84272ce76eee"
+    },
+    "Examples/Scripts/External DLL/Project1.exe.vmp": {
+      "sha256": "a7d574bfbc558160aeaa163b0614e6ff4999a822ecb1a0aa640e8dafa6518686"
+    },
+    "Examples/Scripts/Random Section Names/Project1.exe.vmp": {
+      "sha256": "85aed524596107b858af4f62456198cbf8342a02ed472721f7f0f1566f04adf5"
+    },
+    "Examples/Scripts/Script Events/Project1.exe.vmp": {
+      "sha256": "c417b7afe50d6b6f10260fca070be34bf32003aef75b49e9aa3e480ab135b1d3"
+    },
+    "Include/ASM/VMProtectSDK.inc": {
+      "sha256": "9d41f7bf8f220e721e34f54665db9b63caca9ea00fc650f81492736a196f731e"
+    },
+    "Include/C/VMProtectDDK.h": {
+      "sha256": "e98615fe5506da30061c63a3c6a3b1dfd23892f783d1aa6a9e4fe891a59f2283"
+    },
+    "Include/C/VMProtectSDK.h": {
+      "sha256": "a58e33e21b3e9ff7392f38b67967efb173ab42ea5b46b2d24e4803c7aff0e68f"
+    },
+    "Include/Pascal/VMProtectSDK.pas": {
+      "sha256": "935c599b59ef4e70eeb3c87a05a6cb7351e0820ecbe4b425b86d47301b1dffa9"
+    },
+    "Include/VB6/VMProtectSDK.bas": {
+      "sha256": "d2c1334fd893071b3b7e42d0817cbd37310c831af2af12ee1f94e8f654eff403"
+    },
+    "Lib/Linux/libVMProtectSDK32.so": {
+      "sha256": "5aec2c03bc5e4658f849491bbd665e9c4c3bc5e4007b8258505c21b704aeb9a1"
+    },
+    "Lib/Linux/libVMProtectSDK64.so": {
+      "sha256": "f2ea6cf49d93238dba7cafeee24fd9fcf2f4d55c108b9359cd894c4c7f381ea8"
+    },
+    "Lib/OSX/libVMProtectSDK.dylib": {
+      "sha256": "7c3db389d551313a7af8049c9ca316bca22d2e36d0c18c80e0db453b7eee189e"
+    },
+    "Lib/Windows/BCC64ELF/VMProtectSDK64.lib": {
+      "sha256": "74a85fbf1bce696c1dcc0ff95c466cc1957486563938cd3f43ddc48d1d4e7c40"
+    },
+    "Lib/Windows/MinGW/VMProtectSDK32.a": {
+      "sha256": "a371b040ca5c5a448ccb068b325e0a9ed2a9f9fc70e6aed421c1c0462a3f035e"
+    },
+    "Lib/Windows/MinGW/VMProtectSDK64.a": {
+      "sha256": "682b0716e61f08f7adc502bca9668ca415b884767980a05fa7f2d341436a0c1f"
+    },
+    "Lib/Windows/Net/VMProtect.SDK.dll": {
+      "sha256": "a31c2e1726beb95603d6c2d06db20a841eb2dfa0e9938597496b023c786453b8"
+    },
+    "Lib/Windows/OMF/VMProtectSDK32.lib": {
+      "sha256": "06497f7b7d9670bdc832506b00707eae521f310eaaa5998ec6f6f4bdfadc1e87"
+    },
+    "Lib/Windows/VMProtectDDK32.lib": {
+      "sha256": "28ee72f0cb130dfe2597cb8f85a9994522e9ab3076740770bd6b59978c741a56"
+    },
+    "Lib/Windows/VMProtectDDK32.sys": {
+      "sha256": "a60b454f466c059af28a7676d4f441f9c60e5d31c47d0aa3c8438778a8b90943"
+    },
+    "Lib/Windows/VMProtectDDK64.lib": {
+      "sha256": "d3decd7d5f6447f26319ab4949000cf93b8fea62c1b00ff245dcc147e2f88052"
+    },
+    "Lib/Windows/VMProtectDDK64.sys": {
+      "sha256": "3b3958bca72bde97835ab62ac388a31d8e0a7c3c3610d29421e848175dc8f75f"
+    },
+    "Lib/Windows/VMProtectSDK32.dll": {
+      "sha256": "1cf3946ec20192ae9b4551aec98cf7b12501973d557ff09a71b9d90e188c4e33"
+    },
+    "Lib/Windows/VMProtectSDK32.lib": {
+      "sha256": "d33108359139bc8aa2edd07cd09878913bb8ae8733d6da612032968f63cac0d5"
+    },
+    "Lib/Windows/VMProtectSDK64.dll": {
+      "sha256": "3b2dd1192f4dd56986fa414b9626c0d298edfec9b9c597ec6161512d9452606a"
+    },
+    "Lib/Windows/VMProtectSDK64.lib": {
+      "sha256": "db02a5a1c75140a89ce904cc960743ad775be8d70c144389d88dd590e3a29203"
+    }
+  },
+  "removed": {
+    "Examples/Code Markers/BCB/Project1.exe": {
+      "sha256": "ad0876324839c5098ece43c8cd1f6ccca9bc1746045c167a8f4d3b4ce255e60a",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/Delphi/Project1.exe": {
+      "sha256": "a14c1e75ce36821ecd80e4525c888c9d58e80a23a8a5f6ebe9923f6a33d93e7d",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/Free Pascal/Project1": {
+      "sha256": "d1951f724d2aa423bb2c29eae92069b676b33a7d0e9d371a45e1d942c4a28a8d",
+      "reason": "compiled Mach-O executable"
+    },
+    "Examples/Code Markers/Free Pascal/Project1.exe": {
+      "sha256": "afda096738c0646e01a2b3d2c000fe48b80376ce8464be660764ed2004ba5de3",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/GCC/Project1": {
+      "sha256": "6bd7626d74b11df5a7b7b49b1a7a08ebe6f21b870c4493d50d53eba8036b879e",
+      "reason": "compiled Mach-O executable"
+    },
+    "Examples/Code Markers/Lazarus/project1": {
+      "sha256": "ae0a22792b62dee33cc9328ff471b549b0967b33951cc385b43ad13c1582e0a6",
+      "reason": "compiled Mach-O executable"
+    },
+    "Examples/Code Markers/Lazarus/project1.app/Contents/MacOS/project1": {
+      "sha256": "248b21893a6d1774c26cb7f80bfd4a34c9a53a9a6f9dea439e1f0128cb54b71c",
+      "reason": "packaged alias to a removed executable"
+    },
+    "Examples/Code Markers/Lazarus/project1.exe": {
+      "sha256": "864a8b0953fd38a64aa17123bf9e6aae62be534289dabe3a613959010485f44f",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/MASM/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/MSVC/bin/Project1.exe": {
+      "sha256": "5295cf2336ba6f0f91039aece6aa2a3d3a613887db30200524fedbd2d0099168",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/MinGW/Project1.exe": {
+      "sha256": "2097c7152947afcf7c00314be716b2ac549b6013a8e9543e96ebfaa49644d98d",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/Net/bin/Project1.exe": {
+      "sha256": "d253b21fc9515698f345dd0cb1bac8bb7ee4b34d366721b0e43ab772b4ed67e4",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/VB6/Project1.exe": {
+      "sha256": "3022f931ab6972d42171da9994d4d01e6031e72ad632a59e66d058999a5cb546",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Code Markers/Xcode/Project1/Project1.app/Contents/MacOS/Project1": {
+      "sha256": "0a43b7994826517144e8966a9891b3cc79d6f7cfc49fd1bd6455457b5dd28f7a",
+      "reason": "compiled Mach-O executable"
+    },
+    "Examples/Licensing/BCB/TestApp.exe": {
+      "sha256": "9913225feda352d3662c6a2498ccbe3da39fe0a5abb899f31aa7ea8bfbb99fd4",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/DDK/bin/i386/TestApp.sys": {
+      "sha256": "4cec6e3d2f9b7ebae6f4add1311f7b7a37bc29964df0495ae32f8820ce57fcef",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/Delphi/TestApp.exe": {
+      "sha256": "2da43ba896fb35d40555cb641a94b1c74c9568e461591d31cb141bc834336eeb",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/MSVC/TestApp.exe": {
+      "sha256": "8a4c9ea04610c4f6bafc03d59c55acc2fc5cd5db696e3c5023dfbe9666138a10",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/MSVC/bin/TestApp.exe": {
+      "sha256": "27040cc4bf7feeb79941ed94fa06628a0c6095430cd57f1dca08180e0cd77b44",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/Net/bin/TestApp.exe": {
+      "sha256": "bee3ccff1a5dbf76023ae49bbe1dce39c9c5f92dc74b4a7dee956c0502c4b6bf",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/VB6/TestApp.exe": {
+      "sha256": "8ddee2b12d40154c0c6fd7861f5c1ce17405d5d045a8ed9f8151d5621ea5be1d",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Licensing/Xcode/Build/Products/Release/VMProtect Licensing Test.app/Contents/MacOS/VMProtect Licensing Test": {
+      "sha256": "de496be3920cc394099a2ec00a8aa195a1f016345cd0c48020fdaea2e2630a65",
+      "reason": "compiled Mach-O executable"
+    },
+    "Examples/Scripts/Delphi Resources/Project1.exe": {
+      "sha256": "a14c1e75ce36821ecd80e4525c888c9d58e80a23a8a5f6ebe9923f6a33d93e7d",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Scripts/Environment Variables/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Scripts/External DLL/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Scripts/Random Section Names/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
+      "reason": "compiled Windows executable or example driver"
+    },
+    "Examples/Scripts/Script Events/Project1.exe": {
+      "sha256": "7e90ae83789d2a44ec9c5ee5b38586e5898dcbfefb0e754af6fd0720eea21dde",
+      "reason": "compiled Windows executable or example driver"
+    }
+  }
+}

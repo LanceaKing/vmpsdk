@@ -1,0 +1,107 @@
+name: Build examples
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux GCC x86 + x64 and MinGW x86
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify imported files
+        run: python3 ci/verify.py
+      - name: Install compilers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-multilib g++-mingw-w64-i686
+      - run: python3 ci/prepare.py
+      - run: bash ci/build-unix.sh linux
+      - name: Verify source and SDK bytes after building
+        if: always()
+        run: |
+          python3 ci/verify.py
+          python3 ci/verify.py --root .build/work --build-tree
+      - name: Package executables with runtime libraries
+        run: tar -czf .build/linux-mingw.tar.gz -C .build/artifacts .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-mingw
+          path: .build/linux-mingw.tar.gz
+          if-no-files-found: error
+
+  macos:
+    name: macOS x64 / ${{ matrix.example }}
+    runs-on: macos-15-intel
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [gcc, fpc, xcode-markers, xcode-licensing]
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 ci/verify.py
+      - name: Install Free Pascal
+        if: matrix.example == 'fpc'
+        run: brew install fpc
+      - run: python3 ci/prepare.py
+      - run: bash ci/build-unix.sh '${{ matrix.example }}'
+      - name: Verify source and SDK bytes after building
+        if: always()
+        run: |
+          python3 ci/verify.py
+          python3 ci/verify.py --root .build/work --build-tree
+      - name: Preserve executable permissions in artifact
+        run: tar -czf .build/macos-${{ matrix.example }}.tar.gz -C .build/artifacts .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos-${{ matrix.example }}-x64
+          path: .build/macos-${{ matrix.example }}.tar.gz
+          if-no-files-found: error
+
+  windows:
+    name: Windows / ${{ matrix.kind }} / ${{ matrix.arch }}
+    runs-on: windows-2022
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {kind: native, arch: x86}
+          - {kind: native, arch: x64}
+          - {kind: managed, arch: x86}
+          - {kind: pascal, arch: x86}
+    steps:
+      - name: Enable real Git symlinks before checkout
+        run: git config --global core.symlinks true
+      - uses: actions/checkout@v7
+      - run: python ci/verify.py
+      - name: Install Lazarus and Free Pascal
+        if: matrix.kind == 'pascal'
+        shell: pwsh
+        run: |
+          $url = 'https://download.lazarus-ide.org/Lazarus%20Windows%2032%20bits/Lazarus%204.0/lazarus-4.0-fpc-3.2.2-win32.exe'
+          $installer = Join-Path $env:RUNNER_TEMP 'lazarus-installer.exe'
+          Invoke-WebRequest $url -OutFile $installer
+          $process = Start-Process $installer -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', '/DIR=C:\lazarus' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Lazarus installer exited with $($process.ExitCode)" }
+      - run: python ci/prepare.py
+      - run: ./ci/build-windows.ps1 -Kind '${{ matrix.kind }}' -Arch '${{ matrix.arch }}'
+      - name: Verify source and SDK bytes after building
+        if: always()
+        run: |
+          python ci/verify.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python ci/verify.py --root .build/work --build-tree
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-${{ matrix.kind }}-${{ matrix.arch }}
+          path: .build/artifacts/
+          if-no-files-found: error
