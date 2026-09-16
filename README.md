@@ -88,7 +88,7 @@ VB6 使用第三方归档 [sdksmate/vb6-portable](https://github.com/sdksmate/vb
 VB6 分别上传 `windows-x86-vb6-markers.zip` 和 `windows-x86-vb6-licensing.zip`。根目录包含各自的 `Project1.exe` 或 `TestApp.exe`，以及 `VMProtectSDK32.dll`。
 
 Delphi 使用 SourceForge 上的第三方归档 [Delphi 7 Lite Full Edition 7.3.4.3（20110801）](https://sourceforge.net/projects/c0de-s/files/Delphi7_Lite_Full_Edition_Setup_7.3.4.3_Build_20110801.rar/download)。RAR 的 SHA-256 固定为 `352d0c13c784d85b97f3a97ce2fa07b44f3ee00b4a0a7b9107db1928873eb129`，内层安装器为 `e413ecd2615e24fb3a3a60555a6afdaccb812c70c3b693e709859928ecc878da`。工具链的版权及许可仍归原权利人所有。
-[`install-delphi.ps1`](ci/install-delphi.ps1) 校验下载或缓存的包，在 Windows runner 原生运行完整安装器，以 `/TYPE=full` 安装到 `.build/delphi/`，不使用 Wine。此旧安装器在 x64 Windows 的静默模式下直接拒绝安装，因此脚本自动操作原生安装向导，并确认其 32 位兼容性提示。安装器默认启动的 IDE 由脚本按可执行文件路径识别并关闭；安装超时或未知提示会使 job 失败。
+[`install-delphi.ps1`](ci/install-delphi.ps1) 校验下载或缓存的包，在 Windows runner 原生运行完整安装器，以 `/TYPE=full` 安装到 `.build/delphi/`，不使用 Wine。此旧安装器在 x64 Windows 的静默模式下直接拒绝安装，因此脚本自动操作原生安装向导，并确认其 32 位兼容性提示。脚本在完成页取消勾选 `Launch Delphi 7 Lite Full Edition`，读回确认未勾选后才点击 Finish，并检查 IDE 未运行。找不到该选项、取消失败、安装超时或未知提示都会使 job 失败。
 校验两层 SHA-256 后，脚本使用安装器支持的 `/NoExeVerify` 跳过归档副本的时间戳及版本元数据检查；仍由安装器检查内部文件完整性。
 构建不转换 `.dof` / `.dproj`。Licensing 的原 `.dpr` 引用了缺失的 `TestApp.res`，CI 仅在构建副本生成空资源。新 EXE、MAP 和中间文件输出到独立目录，保留原有 `TestApp.map`。KeyGen 调用示例使用原包的 `KeyGen32.dll`，运行时检查空产品参数对应的 `Error: 2`。
 三个项目分别上传 `windows-x86-delphi-markers.zip`、`windows-x86-delphi-licensing.zip` 和 `windows-x86-delphi-keygen-usage.zip`；根目录包含各自的 EXE、MAP 和所需的 `VMProtectSDK32.dll` 或 `KeyGen32.dll`。

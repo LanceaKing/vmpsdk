@@ -38,6 +38,19 @@ public class DelphiSetupWindow {
     public string Text;
     public bool Enabled;
 }
+// The first eight IAccessible methods, in COM vtable order. This old Inno
+// control implements these methods but not IDispatch or accDoDefaultAction.
+[ComImport, Guid("618736E0-3C3D-11CF-810C-00AA00389B71"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
+public interface IDelphiAccessible {
+    [return: MarshalAs(UnmanagedType.IDispatch)] object GetParent();
+    int GetChildCount();
+    [return: MarshalAs(UnmanagedType.IDispatch)] object GetChild([MarshalAs(UnmanagedType.Struct)] object child);
+    [return: MarshalAs(UnmanagedType.BStr)] string GetName([MarshalAs(UnmanagedType.Struct)] object child);
+    [return: MarshalAs(UnmanagedType.BStr)] string GetValue([MarshalAs(UnmanagedType.Struct)] object child);
+    [return: MarshalAs(UnmanagedType.BStr)] string GetDescription([MarshalAs(UnmanagedType.Struct)] object child);
+    [return: MarshalAs(UnmanagedType.Struct)] object GetRole([MarshalAs(UnmanagedType.Struct)] object child);
+    [return: MarshalAs(UnmanagedType.Struct)] object GetState([MarshalAs(UnmanagedType.Struct)] object child);
+}
 public static class DelphiSetupUI {
     delegate bool EnumProc(IntPtr handle, IntPtr data);
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc callback, IntPtr data);
@@ -50,6 +63,8 @@ public static class DelphiSetupUI {
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll")] static extern IntPtr GetParent(IntPtr handle);
     [DllImport("user32.dll")] static extern int GetDlgCtrlID(IntPtr handle);
+    [DllImport("user32.dll", SetLastError = true)] static extern IntPtr SendMessageTimeout(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out UIntPtr result);
+    [DllImport("oleacc.dll")] static extern int AccessibleObjectFromWindow(IntPtr handle, uint objectId, ref Guid iid, out IDelphiAccessible accessible);
     static DelphiSetupWindow Read(IntPtr handle) {
         uint pid;
         GetWindowThreadProcessId(handle, out pid);
@@ -71,6 +86,42 @@ public static class DelphiSetupUI {
         if (!IsWindowEnabled(handle) || !PostMessage(GetParent(handle), 0x111, new IntPtr(GetDlgCtrlID(handle) & 0xFFFF), handle))
             throw new Exception("Cannot press Delphi installer button");
     }
+    static long Send(IntPtr handle, uint message, int wParam, int lParam) {
+        UIntPtr result;
+        if (SendMessageTimeout(handle, message, new IntPtr(wParam), new IntPtr(lParam), 2, 5000, out result) == IntPtr.Zero)
+            throw new Exception("Delphi installer checklist did not respond");
+        return unchecked((long)result.ToUInt64());
+    }
+    public static int UncheckLaunch(IntPtr handle) {
+        var iid = typeof(IDelphiAccessible).GUID;
+        IDelphiAccessible accessible;
+        Marshal.ThrowExceptionForHR(AccessibleObjectFromWindow(handle, 0xFFFFFFFC, ref iid, out accessible)); // OBJID_CLIENT
+        try {
+            int found = 0;
+            for (int child = 1; child <= accessible.GetChildCount(); child++) {
+                string name = accessible.GetName(child);
+                if (name == null || !name.Replace("&", "").StartsWith("Launch Delphi 7 Lite Full Edition", StringComparison.Ordinal)) continue;
+                found++;
+                int state = Convert.ToInt32(accessible.GetState(child));
+                if (Convert.ToInt32(accessible.GetRole(child)) != 0x2C || (state & 0x21) != 0)
+                    throw new Exception("Unexpected launch checkbox role/state: " + state);
+                Console.WriteLine("Delphi launch checkbox: " + name + "; checked=" + ((state & 0x10) != 0));
+                if ((state & 0x10) != 0) {
+                    // LB_SETCURSEL selects the item; Space changes its checked state.
+                    // Synchronous messages let us read back the result before Finish.
+                    Send(handle, 0x186, child - 1, 0);
+                    if (Send(handle, 0x188, 0, 0) != child - 1)
+                        throw new Exception("Cannot select Delphi launch checkbox");
+                    Send(handle, 0x100, 0x20, 1); // WM_KEYDOWN / VK_SPACE
+                    Send(handle, 0x101, 0x20, unchecked((int)0xC0000001)); // WM_KEYUP
+                }
+                if ((Convert.ToInt32(accessible.GetState(child)) & 0x30) != 0)
+                    throw new Exception("Delphi launch checkbox is still checked");
+                Console.WriteLine("Verified Delphi launch checkbox is unchecked before Finish");
+            }
+            return found;
+        } finally { Marshal.ReleaseComObject(accessible); }
+    }
 }
 '@
 $arguments = '/SP- /NORESTART /NoExeVerify /TYPE=full /TASKS="" /LANG=en /DIR="{0}" /LOG="{1}"' -f $sdk, $installLog
@@ -78,6 +129,7 @@ $process = Start-Process $installer -ArgumentList $arguments -PassThru
 try {
     $timer = [Diagnostics.Stopwatch]::StartNew()
     $lastStates = @{}
+    $launchUnchecked = $false
     $nextLogAt = 30
     while (!$process.WaitForExit(500)) {
         if ($timer.Elapsed.TotalMinutes -ge 10) { throw 'Delphi installation timed out after 10 minutes' }
@@ -111,17 +163,25 @@ try {
             }
             if ($window.Class -ne 'TWizardForm') { continue }
             $next = $buttons | Where-Object { $_.Text.Replace('&', '').Trim() -in @('Next >', 'I Agree >', 'Install', 'Finish') } | Select-Object -First 1
-            if ($next) { [DelphiSetupUI]::PressButton($next.Handle) }
+            if ($next) {
+                if ($next.Text.Replace('&', '').Trim() -eq 'Finish') {
+                    $found = 0
+                    foreach ($list in @($controls | Where-Object { $_.Enabled -and $_.Class -eq 'TNewCheckListBox' })) {
+                        $found += [DelphiSetupUI]::UncheckLaunch($list.Handle)
+                    }
+                    if ($found -ne 1) { throw "Expected one Delphi launch checkbox on the finish page, found $found" }
+                    $launchUnchecked = $true
+                }
+                [DelphiSetupUI]::PressButton($next.Handle)
+            }
         }
     }
     if ($process.ExitCode -ne 0) { throw "Delphi installer exited with $($process.ExitCode)" }
-    # This repack starts the IDE from its post-install checklist. Close only ours.
-    Get-Process -Name delphi32 -ErrorAction SilentlyContinue |
-        Where-Object { $_.Path -eq (Join-Path $sdk 'Bin\delphi32.exe') } |
-        ForEach-Object {
-            Write-Host "Closing the installed Delphi IDE (PID $($_.Id))"
-            $_ | Stop-Process -Force
-        }
+    if (!$launchUnchecked) { throw 'Delphi installer exited without verifying the launch checkbox' }
+    if (Get-Process -Name delphi32 -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq (Join-Path $sdk 'Bin\delphi32.exe') }) {
+        throw 'Delphi IDE unexpectedly started after installation'
+    }
+    Write-Host 'Verified the installed Delphi IDE is not running'
     foreach ($file in @('Bin\dcc32.exe', 'Bin\brcc32.exe', 'Bin\rlink32.dll', 'Lib\System.dcu', 'Lib\Forms.dcu')) {
         $path = Join-Path $sdk $file
         if (!(Test-Path $path) -or (Get-Item $path).Length -eq 0) { throw "Missing Delphi toolchain file: $path" }
