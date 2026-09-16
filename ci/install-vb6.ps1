@@ -21,7 +21,8 @@ New-Item -ItemType Directory -Path $sdk | Out-Null
 foreach ($name in @(
     'Vb6.exe', 'Vb6.olb', 'Vb6ext.olb', 'Vb6debug.dll', 'Vb6ide.dll',
     'Vba6.dll', 'Vbaexe6.lib', 'C2.exe', 'Link.exe', 'Mspdb60.dll',
-    'Mso97rt.dll', 'Mrt7enu.dll', 'ENTDAT.DLL', 'PRODAT.DLL', 'LRNDAT.DLL'
+    'Mso97rt.dll', 'Mrt7enu.dll', 'ENTDAT.DLL', 'PRODAT.DLL', 'LRNDAT.DLL',
+    'Dao350.dll'
 )) {
     Copy-Item (Join-Path $source $name) $sdk
 }
