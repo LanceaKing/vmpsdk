@@ -19,10 +19,24 @@ $compiler = "$root/.build/vb6/Vb6.exe"
 $start = (Get-Date).AddMinutes(-5)
 $reference = Get-Content "$root/.build/work/Examples/Code Markers/VB6/Project1.vbp" | Where-Object { $_ -like 'Reference=*' }
 $minimal = Get-Content "$probe/Probe.vbp" -Raw
+(Get-Content "$probe/Main.bas" | Where-Object { $_ -notlike 'Attribute *' }) | Set-Content -Encoding ascii "$probe/NoAttribute.bas"
+($minimal -replace 'Main.bas', 'NoAttribute.bas') | Set-Content -Encoding ascii "$probe/NoAttribute.vbp"
+Copy-Item "$root/Include/VB6/VMProtectSDK.bas" "$probe/VMProtectSDK.bas"
+($minimal -replace 'Attribute VB_Name = "Module1"', 'Attribute VB_Name = "Bootstrap"') | Out-Null
+@'
+Type=Exe
+Module=Module1; VMProtectSDK.bas
+Startup="(None)"
+ExeName32="Probe.exe"
+Name="Probe"
+CompilationType=0
+'@ | Set-Content -Encoding ascii "$probe/SDK.vbp"
 ($minimal + "`r`n$reference") | Set-Content -Encoding ascii "$probe/RefBroken.vbp"
 ($minimal + "`r`n" + ($reference -replace '#[^#]+#OLE Automation$', "#$env:SystemRoot\SysWOW64\stdole2.tlb#OLE Automation")) |
     Set-Content -Encoding ascii "$probe/RefSystem.vbp"
 foreach ($case in @(
+    @{Name='no-attribute'; Layer=''; Project="$probe/NoAttribute.vbp"; Exe='Probe.exe'},
+    @{Name='sdk'; Layer=''; Project="$probe/SDK.vbp"; Exe='Probe.exe'},
     @{Name='ref-broken'; Layer=''; Project="$probe/RefBroken.vbp"; Exe='Probe.exe'},
     @{Name='ref-system'; Layer=''; Project="$probe/RefSystem.vbp"; Exe='Probe.exe'}
 )) {
