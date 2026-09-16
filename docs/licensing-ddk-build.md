@@ -1,6 +1,6 @@
 # Licensing/DDK 的 GitHub Actions 构建记录
 
-记录日期：2026-09-17。任务目标是在 GitHub Actions 上构建原始 `Examples/Licensing/DDK` 示例，并按仓库约定上传独立 ZIP。首次 Windows runner 实测已完成编译、链接、完整性检查和 ZIP 上传；使用 WDK 7.1.0 构建 x86 Windows XP free 目标。
+记录日期：2026-09-17。任务目标是在 GitHub Actions 上构建原始 `Examples/Licensing/DDK` 示例，并按仓库约定上传独立 ZIP。两次 Windows runner 实测均完成编译、链接、完整性检查和 ZIP 上传，分别验证缓存写入和恢复；使用 WDK 7.1.0 构建 x86 Windows XP free 目标。
 
 本次工作从提交 [`461915e`](https://github.com/LanceaKing/vmpsdk/commit/461915ec249ffa6e0bd5c50f32b42d67eee4f8c9) 开始。原始示例、工程、SDK 头文件和库均保持不变；构建在 `.build/work/` 副本中进行。本文由独立的过程记录分支聊天整理，主聊天提供实际操作、证据和验证结果，并在交付前核对。
 
@@ -190,7 +190,43 @@ Windows-X64-windows-2022-wdk-7.1-72c377eaae7ece8934c109815829cbafef76c4678e3711a
 
 ### 缓存恢复与验收范围
 
-缓存恢复的第二次运行待完成后记录；首次写入缓存不能单独证明后续缓存命中。
+[第二次运行 35122905614](https://github.com/LanceaKing/vmpsdk/actions/runs/35122905614) 对应提交 [`ee63113`](https://github.com/LanceaKing/vmpsdk/commit/ee63113c28c685765cd09c870de464ec54c295c9)，完整矩阵 14/14 成功。[DDK job 104884821837](https://github.com/LanceaKing/vmpsdk/actions/runs/35122905614/job/104884821837) 的原始日志保存在本地 `.build/ddk-research/warm-ddk.log`。
+
+日志明确记录 `Cache restored from key`，键与首次运行完全相同；随后记录 `Using cached WDK 7.1 ISO; skipping download and verifying its digest`。ISO 摘要再次通过，四个 MSI 全部退出 `0`，原入口重新编译成功，原仓库及构建副本各自的 263 项摘要通过，四项 ZIP 打包及上传成功。因此实际验证了跳过下载、保留摘要检查和重新安装/构建的缓存行为。
+
+第二次 [artifact 10458287269](https://github.com/LanceaKing/vmpsdk/actions/runs/35122905614/artifacts/10458287269) 的 ZIP 为 **42399 字节**，SHA-256 为 `ebb03d05502f6c5c12764b04a4681cd8066f31521c04e3d88909640447d0fd28`。再次下载后，CRC、精确四项根目录清单、四个成员长度、x86 / Native PE、非零入口点、MAP 的 `DriverEntry`、PDB 的 MSF 7.00 文件头和原始 SDK 运行依赖逐字节比较均通过。
+
+以下命令可重新下载并核对第二次运行的原始 ZIP。这里使用 `gh api` 的 `--allow-escape-sequences`，避免新版 GitHub CLI 对二进制输出中的转义字节进行阻断；输出重定向到文件，不向终端打印二进制：
+
+```bash
+mkdir -p .build/ddk-research
+gh api repos/LanceaKing/vmpsdk/actions/artifacts/10458287269/zip \
+  --allow-escape-sequences \
+  > .build/ddk-research/windows-x86-ddk-licensing-warm.zip
+
+python3 - <<'PY'
+from pathlib import Path
+import hashlib
+import zipfile
+
+p = Path('.build/ddk-research/windows-x86-ddk-licensing-warm.zip')
+assert p.stat().st_size == 42399
+assert hashlib.sha256(p.read_bytes()).hexdigest() == (
+    'ebb03d05502f6c5c12764b04a4681cd8066f31521c04e3d88909640447d0fd28'
+)
+with zipfile.ZipFile(p) as archive:
+    assert archive.testzip() is None
+    assert set(archive.namelist()) == {
+        'TestApp.sys', 'TestApp.map', 'TestApp.pdb', 'VMProtectDDK32.sys'
+    }
+    assert archive.read('VMProtectDDK32.sys') == Path(
+        'Lib/Windows/VMProtectDDK32.sys'
+    ).read_bytes()
+print('PASS: downloaded ZIP, CRC, root file list, and original runtime')
+PY
+```
+
+Actions artifact 有保留期限；若链接已过期，应重新运行同一提交并按文件结构及构建日志验证，不把新构建的 ZIP 摘要硬套为本次记录的摘要。
 
 本次 CI 验证构建及静态产物结构，不安装或加载 SYS，不执行驱动授权逻辑，也不执行 VMProtect 加壳。GitHub 的 x64 Windows runner 负责运行 x86 编译工具；产物是 x86 内核驱动，这与 runner 的架构不同。
 
