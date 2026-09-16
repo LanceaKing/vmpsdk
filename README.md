@@ -42,6 +42,10 @@ Windows 需要允许创建符号链接（开发者模式或管理员权限）；
 所有构建使用 `.build/work/` 中的副本，产物放在 `.build/artifacts/` 并上传至 Actions artifacts。
 构建前后校验全部导入文件；构建副本也校验原始文件摘要。源文件、工程及 SDK 不打补丁、不重写、不自动升级。
 
+使用 [`actions/cache`](https://github.com/actions/cache) 缓存 Linux 编译器安装包、macOS FPC 下载文件、Windows .NET 引用程序集和 Lazarus/FPC 安装目录。
+缓存键包含 runner 平台、架构及依赖版本或安装脚本摘要；APT 还包含解析后的安装计划摘要。依赖变化会生成新缓存。
+首次成功构建写入缓存，后续构建恢复缓存；Windows Lazarus/FPC 精确命中后跳过下载安装。示例程序每次重新编译，产物仍上传至 Artifacts。
+
 | Runner | 构建内容 | 构建方式 |
 | --- | --- | --- |
 | Ubuntu 24.04 | GCC Code Markers，Linux x86 / x64 | 直接运行原 `makeit.sh`，运行正确及错误密码的 smoke test |
