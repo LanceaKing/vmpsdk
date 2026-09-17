@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags: ['[0-9]*.[0-9]*.[0-9]*.[0-9]*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 ci/release.py validate
+
+  build:
+    needs: validate
+    uses: ./.github/workflows/build.yml
+
+  draft:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: '*.zip'
+          path: .build/release/assets
+          merge-multiple: true
+          skip-decompress: true
+          digest-mismatch: error
+      - run: python3 ci/verify.py
+      - name: Prepare SDK, examples, checksums and release notes
+        run: python3 ci/release.py prepare
+      - name: Create or update the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 ci/release.py draft

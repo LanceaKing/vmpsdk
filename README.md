@@ -3,7 +3,7 @@
 [![Build examples](https://github.com/LanceaKing/vmpsdk/actions/workflows/build.yml/badge.svg)](https://github.com/LanceaKing/vmpsdk/actions/workflows/build.yml)
 
 VMProtect SDK 的接口文件、库和示例，用于了解代码保护标记、授权验证和序列号生成。
-内容提取自 `VMProtectSDK-3.5.0.1249.zip`，版本号沿用原包文件名。SDK、示例源码和工程文件保持原始内容。
+内容提取自 `VMProtectSDK-3.5.0.1249.zip`，版本号记录在提取清单中。SDK、示例源码和工程文件保持原始内容。
 
 ## 仓库内容
 
@@ -56,6 +56,7 @@ DDK 示例仅验证编译和打包，不加载驱动。
 - [SDK 提取与校验](docs/sdk-extraction.md)
 - [Windows 工具链](docs/windows-toolchains.md)
 - [构建产物约定](docs/build-artifacts.md)
+- [版本发布](docs/releases.md)
 
 ## 许可
 

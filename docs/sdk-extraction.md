@@ -4,7 +4,7 @@
 
 ## 文件来源与处理规则
 
-从 `VMProtectSDK-3.5.0.1249.zip` 提取的 SDK 与示例。版本号沿用输入文件名。
+从 `VMProtectSDK-3.5.0.1249.zip` 提取的 SDK 与示例。清单使用 `version` 字段记录版本号 `3.5.0.1249`。
 
 - 原始 ZIP SHA-256：`4b55d8c61ab7f3f5fb8bb75f32fb1eb35f8dd6441dcf0d9337357322e7f3beb9`。
 - `Include/`、`Lib/` 以及保留的示例源码、工程、资源和 `makeit.*` 均保留原始字节。
@@ -23,8 +23,10 @@
 ```bash
 mkdir vmpsdk-extracted
 cp extract.py vmpsdk-extracted/
-python3 vmpsdk-extracted/extract.py /path/to/VMProtectSDK-3.5.0.1249.zip
+python3 vmpsdk-extracted/extract.py /path/to/VMProtectSDK-3.5.0.1249.zip --version 3.5.0.1249
 ```
+
+版本号必须通过 `--version` 手动指定，格式为 `X.X.X.X`。脚本不从 ZIP 文件名推断版本。
 
 内容写入脚本所在目录，不依赖调用时的工作目录。若 `Examples/`、`Include/`、`Lib/` 或清单已存在，脚本拒绝覆盖。
 脚本校验 ZIP CRC、拒绝越界路径，记录原包摘要、保留文件摘要、链接及删除原因到 [`extraction-manifest.json`](../extraction-manifest.json)。

@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
+import re
 import shutil
 import stat
 import struct
@@ -13,8 +14,12 @@ import zipfile
 
 parser = argparse.ArgumentParser(description='Extract VMProtect SDK beside this script without overwriting existing files.')
 parser.add_argument('zip', type=Path, help='SDK ZIP with Examples, Include, and Lib at its root')
+parser.add_argument('--version', required=True, help='SDK version in X.X.X.X format')
 args = parser.parse_args()
 archive, root = args.zip.resolve(), Path(__file__).resolve().parent
+version = args.version
+if not re.fullmatch(r'\d+\.\d+\.\d+\.\d+', version):
+    parser.error('--version must use X.X.X.X format')
 roots = ('Examples', 'Include', 'Lib')
 for name in (*roots, 'extraction-manifest.json'):
     if os.path.lexists(root / name):
@@ -114,7 +119,7 @@ with zipfile.ZipFile(archive) as z, tempfile.TemporaryDirectory(prefix='.extract
         if sha((stage / name).read_bytes()) != record['sha256']:
             sys.exit(f'Extracted content mismatch: {name}')
     manifest = {
-        'archive': archive.name,
+        'version': version,
         'archive_sha256': sha(archive.read_bytes()),
         'files': dict(sorted(records.items())),
         'removed': removed,

@@ -1,5 +1,5 @@
 {
-  "archive": "VMProtectSDK-3.5.0.1249.zip",
+  "version": "3.5.0.1249",
   "archive_sha256": "4b55d8c61ab7f3f5fb8bb75f32fb1eb35f8dd6441dcf0d9337357322e7f3beb9",
   "files": {
     "Examples/Code Markers/BCB/Project1.bpr": {

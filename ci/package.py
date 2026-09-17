@@ -2,8 +2,11 @@
 """Package one example and its dependencies at the root of a ZIP file."""
 import argparse
 from dataclasses import dataclass
+import hashlib
+import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
 import stat
 import zipfile
 
@@ -124,12 +127,61 @@ def package(name: str, artifacts: Path, archives: Path) -> Path:
     return output
 
 
+def sdk_version(root: Path) -> str:
+    manifest = json.loads((root / 'extraction-manifest.json').read_text())
+    version = manifest.get('version')
+    if not isinstance(version, str) or not re.fullmatch(r'\d+\.\d+\.\d+\.\d+', version):
+        raise ValueError(f'Invalid SDK version in extraction manifest: {version!r}')
+    return version
+
+
+def package_sdk(root: Path, archives: Path) -> Path:
+    version = sdk_version(root)
+    manifest_path = root / 'extraction-manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    files = {}
+    for name, record in sorted(manifest['files'].items()):
+        member = PurePosixPath(name)
+        if (not member.parts or member.is_absolute() or '..' in member.parts or '\\' in name
+                or member.parts[0] not in ('Include', 'Lib', 'Examples')):
+            raise ValueError(f'Invalid SDK path: {name}')
+        path = root / name
+        if not path.resolve().is_relative_to(root.resolve()):
+            raise ValueError(f'SDK link leaves the repository: {name}')
+        data = path.read_bytes()
+        if hashlib.sha256(data).hexdigest() != record['sha256']:
+            raise ValueError(f'Changed original SDK bytes: {name}')
+        files[name] = (data, stat.S_IMODE(path.stat().st_mode))
+    files['extraction-manifest.json'] = (manifest_path.read_bytes(), 0o644)
+    archives.mkdir(parents=True, exist_ok=True)
+    output = archives / f'vmpsdk-{version}.zip'
+    with zipfile.ZipFile(output, 'x', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
+        for name, (data, mode) in files.items():
+            # Expand SDK links for ordinary ZIP extractors. Keep file bytes and modes.
+            info = zipfile.ZipInfo(name)
+            info.create_system = 3
+            info.external_attr = (stat.S_IFREG | mode) << 16
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, data)
+    with zipfile.ZipFile(output) as archive:
+        if archive.testzip() is not None:
+            raise ValueError(f'ZIP CRC check failed: {output}')
+        for name, (data, mode) in files.items():
+            if archive.read(name) != data or stat.S_IMODE(archive.getinfo(name).external_attr >> 16) != mode:
+                raise ValueError(f'SDK archive content changed: {name}')
+    print(f'PASS: {output.name}: {len(files)} entries, SDK links materialized')
+    return output
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('name', choices=sorted(PROJECTS))
+    parser.add_argument('name', choices=sorted(PROJECTS) + ['sdk'])
     args = parser.parse_args()
-    package(args.name, root / '.build/artifacts', root / '.build/archives')
+    if args.name == 'sdk':
+        package_sdk(root, root / '.build/archives')
+    else:
+        package(args.name, root / '.build/artifacts', root / '.build/archives')
 
 
 if __name__ == '__main__':
