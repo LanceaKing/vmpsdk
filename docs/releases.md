@@ -13,9 +13,8 @@
 gh workflow run release.yml --ref main
 ```
 
-推送 `3.5.0.1249` 这样的四段数字 tag 也会触发同一流程。
-tag 必须与提取清单中的 `version` 一致。
-工作流只创建草稿。确认附件和说明后，在 GitHub Release 页面手动发布。
+工作流仅通过 **Run workflow** 或上述命令启动，并且只创建草稿。
+确认附件和说明后，在 GitHub Release 页面手动发布。发布草稿或推送 tag 不会启动此工作流。
 
 ## 发布附件
 
