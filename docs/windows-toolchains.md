@@ -72,6 +72,6 @@ DDK 使用微软官方 WDK 7.1.0（7600.16385.1）。[`install-wdk71.ps1`](../ci
 
 安装到原 `make.bat` 指定的 `C:\WinDDK\7600.16385.1`，在构建副本执行原批处理，由配套的 NMAKE、CL 和 LINK 编译原始驱动源码。
 
-[`build-ddk.ps1`](../ci/build-ddk.ps1) 拒绝旧输出，要求新生成 SYS、MAP 和 PDB，并核对 x86、Native 子系统及 `VMProtectDDK32.sys` / `ntoskrnl.exe` 导入。
+[`build-windows.ps1`](../ci/build-windows.ps1) 的 `ddk` 分支拒绝旧输出，要求新生成 SYS、MAP 和 PDB，并核对 x86、Native 子系统及 `VMProtectDDK32.sys` / `ntoskrnl.exe` 导入。
 
 产物为 `windows-x86-ddk-licensing.zip`，根目录包含 `TestApp.sys`、`VMProtectDDK32.sys`、`TestApp.map` 和 `TestApp.pdb`。CI 验证编译、链接和打包，不加载内核驱动，不执行驱动签名或授权流程。
